@@ -1,0 +1,6 @@
+{% extends "immersive/base.html" %}{% block title %}Result{% endblock %}
+{% block content %}<div class="eyebrow">Result</div><h1>{{ attempt.score }} / {{ attempt.total }} ({{ attempt.percent }}%)</h1>
+<div class="stack" style="max-width:780px">{% for r in review %}<div class="card"><b>{{ r.q.text }}</b>
+{% for o in r.q.options %}<div class="opt {% if forloop.counter0 == r.q.answer_index %}ok{% elif forloop.counter0 == r.choice %}bad{% endif %}">{{ o }}</div>{% endfor %}
+<p class="muted">{{ r.q.explanation }}</p></div>{% endfor %}
+<a class="btn primary" href="{% url 'viewer' lesson.pk %}">🌐 Review in 3D</a> <a class="btn" href="{% url 'quiz' lesson.pk %}">Try again</a> <a class="btn" href="{{ lesson.get_absolute_url }}">Back to lesson</a></div>{% endblock %}

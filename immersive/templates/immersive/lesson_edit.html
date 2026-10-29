@@ -1,0 +1,9 @@
+{% extends "immersive/base.html" %}{% block title %}Edit {{ lesson.title }}{% endblock %}
+{% block content %}<div class="eyebrow">Scene editor</div><h1>{{ lesson.title }}</h1>
+<form method="post" class="stack">{% csrf_token %}{{ formset.management_form }}
+<div class="card"><div class="field"><label>Lesson title</label><input type="text" name="title" value="{{ lesson.title }}"></div>
+<div class="field"><label>Objective</label><textarea name="objective" rows="2">{{ lesson.objective }}</textarea></div></div>
+{% for f in formset %}<div class="card">{{ f.id }}<h3>Scene {{ forloop.counter }}</h3>{{ f.non_field_errors }}
+<div class="field"><label>Title</label>{{ f.title }}{{ f.title.errors }}</div><div class="field"><label>Narration (voice-over)</label>{{ f.narration }}{{ f.narration.errors }}</div>
+<div class="grid g3"><div class="field"><label>3D visual</label>{{ f.visual_type }}</div><div class="field"><label>3D labels</label>{{ f.labels_text }}</div><div class="field"><label>Key points</label>{{ f.key_points_text }}</div></div></div>{% endfor %}
+<button class="btn primary" type="submit">💾 Save (creates new version)</button> <a class="btn" href="{{ lesson.get_absolute_url }}">Cancel</a></form>{% endblock %}

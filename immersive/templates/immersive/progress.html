@@ -1,0 +1,19 @@
+{% extends "immersive/base.html" %}{% block title %}Progress{% endblock %}
+{% block content %}{% if student %}<a href="{% url 'progress' %}">← All students</a>{% endif %}
+<h1>📈 {% if student %}{{ student.username }} — analytics{% else %}My learning progress{% endif %}</h1>
+<div class="grid g4" style="margin:14px 0">
+ <div class="card"><div class="muted">Quizzes attempted</div><div class="num">{{ n_attempts }}</div></div>
+ <div class="card"><div class="muted">Average / best quiz</div><div class="num">{% if avg_pct is not None %}{{ avg_pct }}% <small class="muted">/ {{ best_pct }}%</small>{% else %}–{% endif %}</div></div>
+ <div class="card"><div class="muted">Assignments submitted · graded</div><div class="num">{{ n_submitted }} <small class="muted">· {{ n_graded }}</small></div></div>
+ <div class="card"><div class="muted">3D scenes · videos</div><div class="num">{{ scenes_viewed }} <small class="muted">· {{ videos_watched }}</small></div></div></div>
+{% if trend %}<div class="card" style="margin-bottom:16px"><h2>Quiz score trend (last {{ trend|length }} attempts, %)</h2><div class="bars">{% for p in trend %}<div class="bar-col" title="{{ p }}%"><span style="height:{{ p }}%"></span><i>{{ p }}</i></div>{% endfor %}</div></div>{% endif %}
+<div class="grid g2" style="margin-bottom:16px">
+<div class="card"><h2>Quiz results by lesson</h2><table><tr><th>Lesson</th><th>Attempts</th><th>Best</th><th>Latest</th></tr>
+{% for d in per_lesson %}<tr><td>{{ d.lesson.title }}</td><td>{{ d.attempts }}</td><td>{{ d.best_score }}/{{ d.total }} ({{ d.best }}%)</td><td>{{ d.last }}%</td></tr>{% empty %}<tr><td colspan="4" class="muted">No quiz attempts yet.</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>Assignments & marks</h2><table><tr><th>Title</th><th>Status</th><th>Marks</th></tr>
+{% for s in submissions %}{% if s.assignment.kind == 'assignment' %}<tr><td><a href="{{ s.assignment.get_absolute_url }}">{{ s.assignment.title }}</a></td><td>{% if s.is_graded %}Graded{% else %}Submitted{% endif %}</td><td>{% if s.is_graded %}{{ s.marks }}/{{ s.assignment.total_marks }}{% else %}–{% endif %}</td></tr>{% endif %}{% empty %}<tr><td colspan="3" class="muted">Nothing submitted yet.</td></tr>{% endfor %}</table></div></div>
+<div class="card" style="margin-bottom:16px"><h2>Lesson activity</h2><table><tr><th>Lesson</th><th>3D scenes explored</th><th>Video</th><th>Quiz</th></tr>
+{% for r in lesson_rows %}<tr><td>{{ r.lesson.title }}</td><td><div class="meter"><span style="width:{% widthratio r.seen r.scenes 100 %}%"></span></div>{{ r.seen }}/{{ r.scenes }}</td><td>{% if r.video %}✅ watched{% else %}–{% endif %}</td><td>{% if r.quiz %}best {{ r.quiz.best }}%{% elif r.has_quiz %}not attempted{% else %}–{% endif %}</td></tr>{% empty %}<tr><td colspan="4" class="muted">No published lessons.</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>All quiz attempts</h2><table><tr><th>Lesson</th><th>Score</th><th>When</th></tr>
+{% for a in attempts %}<tr><td>{{ a.lesson.title }}</td><td>{{ a.score }}/{{ a.total }} ({{ a.percent }}%)</td><td>{{ a.created|date:"d M H:i" }}</td></tr>{% empty %}<tr><td colspan="3" class="muted">No attempts yet.</td></tr>{% endfor %}</table></div>
+{% endblock %}

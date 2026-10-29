@@ -1,0 +1,10 @@
+{% extends "immersive/base.html" %}{% block title %}{{ a.title }}{% endblock %}
+{% block content %}<div class="eyebrow">{{ a.get_kind_display }} · from {{ a.owner.username }}{% if a.due_date %} · due {{ a.due_date|date:"d M Y H:i" }}{% endif %}</div><h1>{{ a.icon }} {{ a.title }}</h1>
+{% if a.lesson %}<p class="muted">Lesson: <a href="{{ a.lesson.get_absolute_url }}">{{ a.lesson.title }}</a></p>{% endif %}
+<div class="card" style="max-width:780px;margin-bottom:16px">{{ a.description|linebreaks|default:"—" }}</div>
+{% if a.kind == 'quiz' %}<div class="card" style="max-width:780px"><a class="btn mint" href="{% url 'quiz' a.lesson_id %}">📝 {% if best %}Try again{% else %}Start quiz{% endif %}</a>{% if best %} <span class="muted">Best so far: {{ best.score }}/{{ best.total }} ({{ best.percent }}%)</span>{% endif %}</div>
+{% elif a.kind == 'diary' %}<div class="card" style="max-width:780px">{% if sub %}<span class="badge">✔ You have seen this</span>{% else %}<form method="post">{% csrf_token %}<button class="btn primary">✔ I have read this</button></form>{% endif %}</div>
+{% else %}<div class="card" style="max-width:780px">
+{% if sub %}<h3>Your submission {% if a.is_overdue %}<span class="badge late">late</span>{% endif %}</h3><p class="muted">Submitted {{ sub.submitted_at|date:"d M H:i" }}</p>{{ sub.text|linebreaks }}{% if sub.file %}<p>📎 <a href="{{ sub.file.url }}">{{ sub.file.name }}</a></p>{% endif %}
+{% if sub.is_graded %}<div class="msg"><b>Marks: {{ sub.marks }}/{{ a.total_marks }}</b>{% if sub.feedback %}<br>{{ sub.feedback }}{% endif %}</div>{% else %}<p class="muted">Waiting for your teacher's marks. You can re-submit below.</p>{% endif %}<hr style="border:0;border-top:1px solid var(--line);margin:16px 0">{% endif %}
+<form method="post" enctype="multipart/form-data" class="stack">{% csrf_token %}{{ form.non_field_errors }}{% for f in form %}<div class="field"><label>{{ f.label }}</label>{{ f }}{{ f.errors }}</div>{% endfor %}<button class="btn primary">{% if sub %}Re-submit{% else %}Submit{% endif %}</button></form></div>{% endif %}{% endblock %}

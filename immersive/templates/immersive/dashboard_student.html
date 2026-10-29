@@ -1,0 +1,27 @@
+{% extends "immersive/base.html" %}{% block title %}My dashboard{% endblock %}
+{% block content %}
+<div class="hero"><div class="eyebrow" style="color:#9fb8ff">Student dashboard</div><h1>Welcome, {{ user.first_name|default:user.username }}</h1>
+<p>Your teacher's lessons (3D + video), quizzes, assignments and diary are all here, with your own progress.</p></div>
+<div class="grid g4" style="margin-bottom:16px">
+ <div class="card"><div class="muted">Lessons available</div><div class="num">{{ n_lessons }}</div></div>
+ <div class="card"><div class="muted">Quizzes attempted</div><div class="num">{{ n_attempts }}</div></div>
+ <div class="card"><div class="muted">Average quiz score</div><div class="num">{% if avg_pct is not None %}{{ avg_pct }}%{% else %}–{% endif %}</div></div>
+ <div class="card"><div class="muted">To do</div><div class="num">{{ pending|length }}</div></div></div>
+<div class="grid g2" style="margin-bottom:16px">
+<div class="card"><h2>✅ To do</h2>
+{% for a in pending %}<div class="lesson-row"><div class="grow"><b>{{ a.icon }} {{ a.title }}</b><div class="muted">{{ a.get_kind_display }}{% if a.lesson %} · {{ a.lesson.title }}{% endif %}{% if a.due_date %} · <span {% if a.due_date < now %}style="color:#d43b4d;font-weight:700"{% endif %}>due {{ a.due_date|date:"d M H:i" }}</span>{% endif %}</div></div>
+<a class="btn sm primary" href="{% if a.kind == 'quiz' %}{% url 'quiz' a.lesson_id %}{% else %}{{ a.get_absolute_url }}{% endif %}">{% if a.kind == 'quiz' %}Start quiz{% elif a.kind == 'diary' %}Read{% else %}Open{% endif %}</a></div>
+{% empty %}<p class="muted">Nothing pending 🎉</p>{% endfor %}</div>
+<div class="card"><div class="row"><h2>📈 My quiz results</h2><a class="btn sm" href="{% url 'progress' %}">Details</a></div>
+{% if trend %}<div class="bars">{% for p in trend %}<div class="bar-col" title="{{ p }}%"><span style="height:{{ p }}%"></span><i>{{ p }}</i></div>{% endfor %}</div><div class="muted">Last {{ trend|length }} attempts (%) · best {{ best_pct }}% · average {{ avg_pct }}%</div>
+{% else %}<p class="muted">No quiz attempted yet.</p>{% endif %}
+<div class="muted" style="margin-top:10px">Assignments submitted: <b>{{ n_submitted }}</b> · graded: <b>{{ n_graded }}</b>{% if avg_assignment_pct is not None %} · avg {{ avg_assignment_pct }}%{% endif %} · 3D scenes explored: <b>{{ scenes_viewed }}</b> · videos watched: <b>{{ videos_watched }}</b></div></div></div>
+<div class="card" style="margin-bottom:16px"><h2>🎓 Learn now</h2>
+{% for r in lesson_rows %}<div class="lesson-row"><div class="grow"><b>{{ r.lesson.title }}</b>
+<div class="muted">{{ r.lesson.book.title }} · 3D {{ r.seen }}/{{ r.scenes }} scenes{% if r.video %} · 🎬 watched{% endif %}{% if r.quiz %} · quiz best {{ r.quiz.best }}%{% elif r.has_quiz %} · quiz available{% endif %}</div></div>
+<a class="btn sm primary" href="{% url 'viewer' r.lesson.pk %}">🌐 3D</a><a class="btn sm" href="{{ r.lesson.get_absolute_url }}">🎬 Video & notes</a>{% if r.has_quiz %}<a class="btn sm mint" href="{% url 'quiz' r.lesson.pk %}">📝 Quiz</a>{% endif %}</div>
+{% empty %}<p class="muted">Your teacher has not published any lesson yet.</p>{% endfor %}</div>
+<div class="card"><div class="row"><h2>📔 Diary</h2><a class="btn sm" href="{% url 'work_list' %}?kind=diary">All</a></div>
+{% for d in diary %}<div class="lesson-row"><div class="grow"><b>{{ d.title }}</b> {% if not d.seen %}<span class="badge review">New</span>{% endif %}<div class="muted">{{ d.created|date:"d M" }} · {{ d.owner.username }}</div></div><a class="btn sm" href="{{ d.get_absolute_url }}">Read</a></div>
+{% empty %}<p class="muted">No diary notes.</p>{% endfor %}</div>
+{% endblock %}

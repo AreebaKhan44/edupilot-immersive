@@ -1,0 +1,10 @@
+{% extends "immersive/base.html" %}{% block title %}{{ book.title }}{% endblock %}
+{% block content %}<div class="row"><div><div class="eyebrow">{{ book.subject }} {{ book.grade }}</div><h1>{{ book.title }}</h1></div>
+{% if is_owner %}<div class="row" style="gap:8px">
+{% if n_unpublished %}<form method="post" action="{% url 'book_bulk' book.pk %}">{% csrf_token %}<input type="hidden" name="action" value="publish_all"><button class="btn primary">🚀 Publish all to students</button></form>{% endif %}
+<form method="post" action="{% url 'book_bulk' book.pk %}">{% csrf_token %}<input type="hidden" name="action" value="videos_all"><button class="btn dark">🎞️ Generate missing videos</button></form>
+<form method="post" action="{% url 'book_bulk' book.pk %}">{% csrf_token %}<input type="hidden" name="action" value="unpublish_all"><button class="btn danger">Hide all</button></form></div>{% endif %}</div>
+{% if require_review and n_unpublished %}<div class="msg info">Review is switched on (EDUPILOT_REQUIRE_REVIEW=1): lessons need reviewer approval before students see them.</div>{% endif %}
+{% for l in lessons %}<div class="lesson-row">{% with s=l.scenes.first %}{% if s.image_url %}<img class="thumb" src="{{ s.image_url }}" alt="">{% endif %}{% endwith %}
+<div class="grow"><b>{{ l.title }}</b> <span class="badge {{ l.status }}">{{ l.get_status_display }}</span><div class="muted">{{ l.ns }} 3D scenes · {{ l.nq }} quiz Qs{% if l.quiz_live %} (live){% endif %} · video: {% if l.video %}{{ l.video.get_status_display }}{% else %}none{% endif %} · v{{ l.version }} · {{ l.generator }}</div></div>
+<a class="btn sm" href="{% url 'viewer' l.pk %}">🌐 3D</a><a class="btn sm primary" href="{{ l.get_absolute_url }}">Open lesson</a></div>{% endfor %}{% endblock %}

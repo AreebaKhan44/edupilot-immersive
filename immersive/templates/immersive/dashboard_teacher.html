@@ -1,0 +1,32 @@
+{% extends "immersive/base.html" %}{% block title %}Teacher dashboard{% endblock %}
+{% block content %}
+<div class="hero"><div class="eyebrow" style="color:#9fb8ff">Teacher dashboard</div><h1>Book → 3D lesson → video → quiz → students</h1>
+<p>Upload a book (PDF or text). Every unit becomes a topic-wise lesson plan with 3D scenes, pictures, video and a quiz — and it appears on your students' dashboard.</p>
+<a class="btn primary" href="{% url 'book_create' %}">➕ Create lessons from a book</a>
+<a class="btn" href="{% url 'work_create' 'assignment' %}">📄 New assignment</a> <a class="btn" href="{% url 'work_create' 'diary' %}">📔 Diary note</a></div>
+<div class="grid g4" style="margin-bottom:16px">
+ <div class="card"><div class="muted">Books</div><div class="num">{{ stats.books }}</div></div>
+ <div class="card"><div class="muted">Lessons live for students</div><div class="num">{{ stats.published }}</div></div>
+ <div class="card"><div class="muted">Not yet published</div><div class="num">{{ stats.drafts }}</div></div>
+ <div class="card"><div class="muted">Submissions to grade</div><div class="num">{{ stats.to_grade }}</div></div></div>
+{% if reviewer and review_queue %}<div class="card" style="margin-bottom:16px"><h2>🔎 Review queue</h2>
+{% for l in review_queue %}<div class="lesson-row"><div class="grow"><b>{{ l.title }}</b><div class="muted">{{ l.book.title }}</div></div><a class="btn sm" href="{{ l.get_absolute_url }}">Review</a></div>{% endfor %}</div>{% endif %}
+<div class="grid g2" style="margin-bottom:16px">
+<div class="card"><h2>📚 My books</h2>
+{% for b in books %}<div class="lesson-row"><div class="grow"><b>{{ b.title }}</b><div class="muted">{{ b.subject }} {{ b.grade }} · {{ b.n }} lesson(s) · <b>{{ b.n_pub }}</b> published</div></div><a class="btn sm" href="{{ b.get_absolute_url }}">Open</a></div>
+{% empty %}<p class="muted">No books yet. <a href="{% url 'book_create' %}">Create your first one</a>.</p>{% endfor %}</div>
+<div class="card"><h2>📝 Latest lessons</h2>
+{% for l in my_lessons %}<div class="lesson-row"><div class="grow"><b>{{ l.title }}</b> <span class="badge {{ l.status }}">{{ l.get_status_display }}</span><div class="muted">{{ l.book.title }} · {{ l.nq }} quiz Qs</div></div><a class="btn sm" href="{{ l.get_absolute_url }}">Open</a></div>
+{% empty %}<p class="muted">Nothing yet.</p>{% endfor %}</div></div>
+<div class="grid g2" style="margin-bottom:16px">
+<div class="card"><div class="row"><h2>🗂️ Assignments, quizzes & diary</h2><a class="btn sm" href="{% url 'work_list' %}">All</a></div>
+{% for a in my_work %}<div class="lesson-row"><div class="grow"><b>{{ a.icon }} {{ a.title }}</b> {% if not a.published %}<span class="badge draft">Hidden</span>{% endif %}<div class="muted">{{ a.get_kind_display }}{% if a.due_date %} · due {{ a.due_date|date:"d M H:i" }}{% endif %} · {% if a.kind == 'quiz' %}{{ a.n_att }} attempt(s){% else %}{{ a.n_sub }} {% if a.kind == 'diary' %}seen{% else %}submission(s){% endif %}{% endif %}</div></div><a class="btn sm" href="{{ a.get_absolute_url }}">Open</a></div>
+{% empty %}<p class="muted">Nothing given yet.</p>{% endfor %}</div>
+<div class="card"><h2>✍️ Waiting for your grade</h2>
+{% for s in to_grade %}<div class="lesson-row"><div class="grow"><b>{{ s.student.username }}</b><div class="muted">{{ s.assignment.title }} · {{ s.submitted_at|date:"d M H:i" }}</div></div><a class="btn sm primary" href="{{ s.assignment.get_absolute_url }}">Grade</a></div>
+{% empty %}<p class="muted">All caught up.</p>{% endfor %}</div></div>
+<div class="card"><div class="row"><h2>👥 Student analytics</h2><a class="btn sm" href="{% url 'progress' %}">Full report</a></div>
+<table><tr><th>Student</th><th>Quizzes taken</th><th>Avg score</th><th>Assignments</th><th>3D scenes viewed</th></tr>
+{% for r in class_rows %}<tr><td><a href="{% url 'student_detail' r.student.pk %}">{{ r.student.username }}</a></td><td>{{ r.attempts }}</td><td>{% if r.avg is not None %}{{ r.avg }}%{% else %}–{% endif %}</td><td>{{ r.submitted }}/{{ r.of }}</td><td>{{ r.views }}</td></tr>
+{% empty %}<tr><td colspan="5" class="muted">No student activity yet.</td></tr>{% endfor %}</table></div>
+{% endblock %}

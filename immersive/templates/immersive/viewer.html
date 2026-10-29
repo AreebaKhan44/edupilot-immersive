@@ -1,0 +1,11 @@
+{% load static %}<!doctype html><html lang="{{ language }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3D · {{ lesson.title }}</title><link rel="stylesheet" href="{% static 'immersive/css/app.css' %}">
+<script type="importmap">{"imports":{"three":"{% static 'immersive/vendor/three/three.module.js' %}","three/addons/":"{% static 'immersive/vendor/three/jsm/' %}"}}</script></head>
+<body class="viewer">
+<div id="stage"></div><div id="tip"></div>
+<div class="hud" id="hud"><div class="small" id="counter"></div><h2 id="stitle">Loading…</h2><ul id="points"></ul><div class="narr" id="narr"></div><div class="dots" id="dots"></div>
+<div class="small" style="margin-top:10px">🖱️ Drag = rotate · Scroll = zoom · Click objects to hear/see their names · 🥽 “Enter VR” works on WebXR headsets</div></div>
+<div class="topr"><a class="btn sm" href="{% url 'lesson_detail' lesson.pk %}">⬅ Lesson</a><a class="btn sm" href="{% url 'quiz' lesson.pk %}">📝 Quiz</a></div>
+<div class="bar"><button class="btn" id="prev">◀ Prev</button><button class="btn primary" id="tour">▶ Auto tour</button><button class="btn" id="speak">🔊 Narrate</button><button class="btn" id="next">Next ▶</button><button class="btn" id="spin">⟳ Auto-rotate</button></div>
+<script>window.EDUPILOT={manifestUrl:"{% url 'api_manifest' lesson.pk %}",eventsUrl:"{% url 'api_events' %}",lessonId:{{ lesson.pk }},locale:"{{ language }}"};</script>
+<script type="module" src="{% static 'immersive/js/viewer.js' %}"></script></body></html>

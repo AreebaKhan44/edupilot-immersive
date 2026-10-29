@@ -1,0 +1,14 @@
+{% extends "immersive/base.html" %}{% block title %}New book{% endblock %}
+{% block content %}<div class="eyebrow">Teacher Creator Studio</div><h1>Book content → immersive lessons</h1>
+<p class="muted">Upload a PDF or paste text. Units / chapters (“Unit 1”, “Chapter 1: …”) are detected automatically (table of contents and page numbers are ignored); each topic becomes a lesson with 3D scenes, pictures, quiz and video.</p>
+<form method="post" enctype="multipart/form-data" class="card stack" style="max-width:820px">{% csrf_token %}{{ form.non_field_errors }}
+<div class="grid g3">{% for f in form %}{% if f.name in 'title subject grade' %}<div class="field"><label>{{ f.label }}</label>{{ f }}{{ f.errors }}</div>{% endif %}{% endfor %}</div>
+<div class="field"><label>{{ form.language.label }} (voice-over)</label>{{ form.language }}</div>
+<div class="field"><label>{{ form.raw_text.label }}</label>{{ form.raw_text }}{{ form.raw_text.errors }}</div>
+<div class="field"><label>{{ form.pdf.label }}</label>{{ form.pdf }}<div class="helptext">{{ form.pdf.help_text }}</div>{{ form.pdf.errors }}</div>
+<div class="card" style="background:#f7faff;box-shadow:none"><h3>After generating…</h3>
+<label class="check">{{ form.publish_now }} {{ form.publish_now.label }}</label>
+<label class="check">{{ form.make_quiz }} {{ form.make_quiz.label }}</label>
+<label class="check">{{ form.make_video }} {{ form.make_video.label }}</label>
+<div class="helptext">Untick “publish” if you want to edit the lessons first; you can publish them later from the book page.</div></div>
+<button class="btn primary" type="submit">✨ Generate lessons</button></form>{% endblock %}

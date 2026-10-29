@@ -1,0 +1,7 @@
+{% extends "immersive/base.html" %}{% block title %}Students{% endblock %}
+{% block content %}<h1>👥 Students & analytics</h1><p class="muted">Activity on your lessons, quizzes and assignments.</p>
+<div class="card" style="margin-bottom:16px"><table><tr><th>Student</th><th>Quizzes taken</th><th>Average</th><th>Best</th><th>Assignments</th><th>3D scenes</th><th>Last active</th></tr>
+{% for r in rows %}<tr><td><a href="{% url 'student_detail' r.student.pk %}">{{ r.student.username }}</a></td><td>{{ r.attempts }}</td><td>{% if r.avg is not None %}{{ r.avg }}%{% else %}–{% endif %}</td><td>{% if r.best is not None %}{{ r.best }}%{% else %}–{% endif %}</td><td>{{ r.submitted }}/{{ r.of }}</td><td>{{ r.views }}</td><td>{{ r.last|date:"d M H:i" }}</td></tr>
+{% empty %}<tr><td colspan="7" class="muted">No student activity yet.</td></tr>{% endfor %}</table></div>
+<div class="card"><h2>Recent quiz attempts</h2><table><tr><th>Student</th><th>Lesson</th><th>Score</th><th>When</th></tr>
+{% for a in attempts %}<tr><td>{{ a.user.username }}</td><td>{{ a.lesson.title }}</td><td>{{ a.score }}/{{ a.total }} ({{ a.percent }}%)</td><td>{{ a.created|date:"d M H:i" }}</td></tr>{% empty %}<tr><td colspan="4" class="muted">None yet.</td></tr>{% endfor %}</table></div>{% endblock %}

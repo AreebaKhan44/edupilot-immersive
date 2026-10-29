@@ -1,0 +1,20 @@
+{% load static %}<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}EduPilot Immersive{% endblock %}</title><link rel="stylesheet" href="{% static 'immersive/css/app.css' %}"></head><body>
+<div class="app">
+<aside class="sidebar">
+ <div class="brand"><span class="brandmark">🥽</span><span>EduPilot<small>Immersive</small></span></div>
+ {% if user.is_authenticated %}
+ <a class="nav" href="{% url 'dashboard' %}">🏠 Dashboard</a>
+ {% if teacher %}<a class="nav" href="{% url 'book_create' %}">➕ New book → lessons</a>{% endif %}
+ <a class="nav" href="{% url 'work_list' %}">{% if teacher %}🗂️ Assignments & quizzes{% else %}📄 My assignments{% endif %}</a>
+ <a class="nav" href="{% url 'work_list' %}?kind=diary">📔 Diary</a>
+ <a class="nav" href="{% url 'progress' %}">{% if teacher %}👥 Students & analytics{% else %}📈 My progress{% endif %}</a>
+ {% if user.is_staff %}<a class="nav" href="/admin/">⚙️ Admin</a>{% endif %}
+ <div class="who"><b>{{ user.get_username }}</b><br>{% if user.is_staff %}Admin / Reviewer{% elif teacher %}Teacher{% else %}Student{% endif %}
+ <form method="post" action="{% url 'logout' %}" style="margin-top:8px">{% csrf_token %}<button class="btn sm" type="submit">Log out</button></form></div>
+ {% endif %}
+</aside>
+<main class="main"><div class="content">
+{% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+{% block content %}{% endblock %}
+</div></main></div>{% block scripts %}{% endblock %}</body></html>

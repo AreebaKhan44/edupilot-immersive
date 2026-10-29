@@ -1,0 +1,5 @@
+{% extends "immersive/base.html" %}{% block title %}Quiz{% endblock %}
+{% block content %}<div class="eyebrow">Check your understanding</div><h1>{{ lesson.title }} — Quiz</h1>
+{% if teacher_preview %}<div class="msg info">Teacher preview: your attempt is recorded under your own account.</div>{% endif %}{% if questions %}<form method="post" class="stack" style="max-width:780px">{% csrf_token %}
+{% for q in questions %}<div class="card"><b>{{ forloop.counter }}. {{ q.text }}</b>{% for o in q.options %}<label class="opt"><input type="radio" name="q{{ q.pk }}" value="{{ forloop.counter0 }}" required> {{ o }}</label>{% endfor %}</div>{% endfor %}
+<button class="btn primary" type="submit">Submit answers</button></form>{% else %}<p class="muted">No questions for this lesson.</p>{% endif %}{% endblock %}
