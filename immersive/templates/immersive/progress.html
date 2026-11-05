@@ -1,0 +1,37 @@
+{% extends "immersive/base.html" %}{% load static %}{% block title %}Progress{% endblock %}
+{% block extra_css %}{% if teacher %}<link rel="stylesheet" href="{% static 'immersive/css/student.css' %}?v=20261103">{% endif %}{% endblock %}
+{% block content %}{% if student %}<a href="{% url 'progress' %}" class="pill-link" style="margin-bottom:12px">← All students</a>{% endif %}
+<div class="pagehead" style="margin-bottom:14px"><span class="tile t-blue"><svg class="ic lg"><use href="#i-chart"/></svg></span>
+ <div class="grow"><h1>{% if student %}{{ student.username }} — analytics{% else %}My Learning Progress{% endif %}</h1><p class="muted">{% if student %}What this student has done on your lessons.{% else %}Track your performance and see how you’re doing!{% endif %}</p></div></div>
+
+<div class="{% if not student %}spage{% endif %}">
+<div>
+ <div class="grid g4" style="margin-bottom:18px">
+  <div class="card stat-s" style="padding:16px 18px"><span class="disc d-violet" style="width:48px;height:48px"><svg class="ic"><use href="#i-file"/></svg></span><div><div class="lbl">Quizzes Submitted</div><div class="num" style="font-size:28px">{{ n_attempts }}</div></div></div>
+  <div class="card stat-s" style="padding:16px 18px"><span class="disc d-green" style="width:48px;height:48px"><svg class="ic"><use href="#i-trophy"/></svg></span><div><div class="lbl">Average / Best Quiz Mark</div><div class="num" style="font-size:20px;white-space:nowrap">{% if avg_pct is not None %}{{ avg_pct }}% / {{ best_pct }}%{% else %}–{% endif %}</div></div></div>
+  <div class="card stat-s" style="padding:16px 18px"><span class="disc d-blue" style="width:48px;height:48px"><svg class="ic"><use href="#i-check"/></svg></span><div><div class="lbl">Assignments Submitted · Graded</div><div class="num" style="font-size:28px">{{ n_submitted }} · {{ n_graded }}</div></div></div>
+  <div class="card stat-s" style="padding:16px 18px"><span class="disc d-orange" style="width:48px;height:48px"><svg class="ic"><use href="#i-play"/></svg></span><div><div class="lbl">3D Scenes · Videos</div><div class="num" style="font-size:28px">{{ scenes_viewed }} · {{ videos_watched }}</div></div></div>
+ </div>
+
+ <div class="grid g2e" style="margin-bottom:18px;align-items:start">
+  <section class="card"><div class="panel-title" style="margin-bottom:14px"><span class="disc d-blue" style="width:30px;height:30px;box-shadow:none"><svg class="ic sm"><use href="#i-chart"/></svg></span><h2 style="font-size:16px">Quiz Marks Trend (Last {{ trend|slice:"-7:"|length }} Marked Quizzes, %)</h2></div>
+   {% if trend %}<div class="vbars">{% for p in trend|slice:"-7:" %}<div class="vbar" title="{{ p }}%"><b>{{ p }}</b><span style="--h:{{ p }}"></span></div>{% endfor %}</div>
+   {% else %}<p class="muted" style="padding:30px 0;text-align:center">Marks appear here once your teacher has marked a quiz.</p>{% endif %}</section>
+  <section class="card"><div class="panel-title" style="margin-bottom:10px"><span class="disc d-blue" style="width:30px;height:30px;box-shadow:none"><svg class="ic sm"><use href="#i-book"/></svg></span><h2 style="font-size:16px">Quiz Results by Lesson</h2></div>
+   <div style="overflow-x:auto"><table><tr><th>Lesson</th><th>Submissions</th><th>Best</th><th>Latest</th></tr>
+   {% for d in per_lesson %}<tr><td><b>{{ d.lesson.title }}</b></td><td>{{ d.attempts }}</td><td>{% if d.best is not None %}{{ d.best_score }}/{{ d.total }} ({{ d.best }}%){% else %}<span class="score wait">waiting for marks</span>{% endif %}</td><td>{% if d.last is not None %}{{ d.last }}%{% else %}–{% endif %}</td></tr>
+   {% empty %}<tr><td colspan="4" class="muted">No quiz attempts yet.</td></tr>{% endfor %}</table></div></section>
+ </div>
+</div>
+{% if not student %}<aside class="trophy-card"><svg width="150" height="165" viewBox="0 0 120 130" aria-hidden="true"><use href="#art-trophy"/></svg><h3>Keep up the great work!</h3><p>You’re making excellent progress in your learning journey.</p><a class="btn blue" href="{% url 'my_learning' %}">Explore More <svg class="ic sm"><use href="#i-arrow"/></svg></a></aside>{% endif %}
+</div>
+
+<div class="grid g2e" style="margin-bottom:18px;align-items:start">
+ <section class="card"><h2>Assignments & marks</h2><table><tr><th>Title</th><th>Status</th><th>Marks</th></tr>
+ {% for s in submissions %}{% if s.assignment.kind == 'assignment' %}<tr><td><a href="{{ s.assignment.get_absolute_url }}">{{ s.assignment.title }}</a></td><td>{% if s.is_graded %}<span class="badge">Graded</span>{% else %}<span class="badge review">Submitted</span>{% endif %}</td><td>{% if s.is_graded %}{{ s.marks }}/{{ s.assignment.total_marks }}{% else %}–{% endif %}</td></tr>{% endif %}{% empty %}<tr><td colspan="3" class="muted">Nothing submitted yet.</td></tr>{% endfor %}</table></section>
+ <section class="card"><h2>All quiz submissions</h2><table><tr><th>Lesson</th><th>Marks</th><th>When</th></tr>
+ {% for a in attempts %}<tr><td>{{ a.lesson.title }}</td><td>{% if a.is_graded %}{{ a.marks }}/{{ a.total }} ({{ a.final_percent }}%){% else %}<span class="score wait">waiting for teacher</span>{% endif %}{% if a.retry_allowed %} · retry allowed{% endif %}</td><td>{{ a.created|date:"d M H:i" }}</td></tr>{% empty %}<tr><td colspan="3" class="muted">No attempts yet.</td></tr>{% endfor %}</table></section>
+</div>
+<section class="card"><h2>Lesson activity</h2><div style="overflow-x:auto"><table><tr><th>Lesson</th><th>3D scenes explored</th><th>Video</th><th>Quiz</th></tr>
+{% for r in lesson_rows %}<tr><td><b>{{ r.lesson.title }}</b></td><td style="min-width:170px"><div class="line"><i class="p" style="width:{% if r.scenes %}{% widthratio r.seen r.scenes 100 %}{% else %}0{% endif %}%"></i></div><span class="muted">{{ r.seen }}/{{ r.scenes }}</span></td><td>{% if r.video %}<span class="badge">watched</span>{% else %}–{% endif %}</td><td>{% if r.has_quiz %}{{ r.quiz_state.label }}{% else %}–{% endif %}</td></tr>{% empty %}<tr><td colspan="4" class="muted">No published lessons.</td></tr>{% endfor %}</table></div></section>
+{% endblock %}

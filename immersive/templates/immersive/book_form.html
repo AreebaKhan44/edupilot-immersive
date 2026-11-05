@@ -1,0 +1,39 @@
+{% extends "immersive/base.html" %}{% block title %}New book{% endblock %}
+{% block content %}
+<div class="pagehead">
+ <span class="tile t-blue"><svg class="ic lg"><use href="#i-book"/></svg></span>
+ <div class="grow"><div class="eyebrow" style="margin:0">Teacher creator studio</div><h1>Book content → immersive lessons</h1>
+ <p class="muted">Upload a PDF or paste text. Units and chapters (“Unit 1”, “Chapter 1: …”) are detected automatically — the table of contents and page numbers are ignored. Each topic becomes a lesson with 3D scenes, pictures, a quiz and video.</p></div>
+</div>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}{% if form.non_field_errors %}<div class="msg error">{{ form.non_field_errors }}</div>{% endif %}
+<div class="studio">
+ <section class="card">
+  <div class="card-h"><span class="tile sm t-blue"><svg class="ic"><use href="#i-file"/></svg></span><h2>Book details</h2></div>
+  <div class="fgrid three">
+   <div class="field"><label for="{{ form.title.id_for_label }}">Title <i class="req">*</i></label>{{ form.title }}{{ form.title.errors }}</div>
+   <div class="field"><label for="{{ form.subject.id_for_label }}">Subject</label>{{ form.subject }}{{ form.subject.errors }}</div>
+   <div class="field"><label for="{{ form.grade.id_for_label }}">Grade</label>{{ form.grade }}{{ form.grade.errors }}</div>
+  </div>
+  <div class="field"><label for="{{ form.language.id_for_label }}">Language (voice-over)</label>{{ form.language }}</div>
+  <div class="field" style="margin-bottom:0"><label for="id_raw_text">Paste book content here</label>{{ form.raw_text }}{{ form.raw_text.errors }}<div class="counter"><span id="chars">0</span> characters</div></div>
+  <div class="or">OR</div>
+  <div class="dropzone"><svg class="ic lg" style="color:var(--primary)"><use href="#i-upload"/></svg><div class="grow"><b>Upload a PDF (text-based)</b><span class="m">Only scanned PDFs need OCR — paste the text instead.</span></div>{{ form.pdf }}</div>
+  {{ form.pdf.errors }}
+ </section>
+ <aside class="stack">
+  <section class="card">
+   <div class="card-h"><span class="tile sm t-violet"><svg class="ic"><use href="#i-gear"/></svg></span><h2>Generation options</h2></div>
+   <label class="optrow" for="{{ form.publish_now.id_for_label }}">{{ form.publish_now }}<div><b>{{ form.publish_now.label }}</b><span>Make generated lessons visible to students.</span></div></label>
+   <label class="optrow" for="{{ form.make_quiz.id_for_label }}">{{ form.make_quiz }}<div><b>{{ form.make_quiz.label }}</b><span>Include an interactive quiz for each lesson.</span></div></label>
+   <label class="optrow" for="{{ form.make_video.id_for_label }}">{{ form.make_video }}<div><b>{{ form.make_video.label }}</b><span>Create a voice-over video for each topic.</span></div></label>
+   <div class="helptext" style="margin:2px 2px 14px">Untick “publish” to edit the lessons first. You can publish them later from the book page.</div>
+   <button class="btn primary xl" type="submit"><svg class="ic"><use href="#i-spark"/></svg>Generate lessons</button>
+   <div class="info-box"><svg class="ic"><use href="#i-info"/></svg><div><b>What happens next?</b><p>We detect units and chapters, split them into topics, and create immersive lessons with 3D scenes, visuals, quizzes and videos.</p></div></div>
+  </section>
+ </aside>
+</div></form>
+{% endblock %}
+{% block scripts %}<script>
+(function(){var t=document.getElementById('id_raw_text'),c=document.getElementById('chars');if(!t||!c)return;function u(){c.textContent=t.value.length.toLocaleString()}t.addEventListener('input',u);u();
+document.querySelectorAll('.optrow input').forEach(function(i){function s(){i.closest('.optrow').classList.toggle('on',i.checked)}i.addEventListener('change',s);s()})})();
+</script>{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "immersive/base.html" %}{% block title %}Lesson design{% endblock %}
+{% block content %}<div class="row"><div><div class="eyebrow">{{ lesson.book.title }} · v{{ lesson.version }}</div><h1>🧩 Lesson design: {{ lesson.title }}</h1></div><a class="btn" href="{{ lesson.get_absolute_url }}">← Back to lesson</a></div>
+<p class="muted">Link the lesson to a curriculum outcome and describe how it is delivered. Every immersive lesson needs an equivalent screen-based route, so a missing headset never blocks a learner.</p>
+<div class="grid g2"><form method="post" class="card stack">{% csrf_token %}{{ form.non_field_errors }}
+{% for f in form %}<div class="field"><label>{{ f.label }}</label>{{ f }}{{ f.errors }}{% if f.help_text %}<div class="helptext">{{ f.help_text }}</div>{% endif %}</div>{% endfor %}
+<button class="btn primary" type="submit">💾 Save design</button></form>
+<div class="card"><h2>✅ Release checklist</h2>{% for label, ok in checklist %}<div class="lesson-row"><div class="grow">{% if ok %}✅{% else %}⚠️{% endif %} {{ label }}</div></div>{% endfor %}
+<p class="muted">{% if require_alt %}An AR/VR lesson cannot be published without an alternative route.{% else %}These are advisory. Set EDUPILOT_REQUIRE_ALT_ROUTE=1 to block publishing AR/VR lessons without an alternative route.{% endif %}</p></div></div>{% endblock %}

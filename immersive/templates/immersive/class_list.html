@@ -1,0 +1,4 @@
+{% extends "immersive/base.html" %}{% block title %}Classes{% endblock %}
+{% block content %}<div class="eyebrow">Teacher</div><h1>🏫 Classes</h1>
+<div class="grid g2"><div>{% for c in classes %}<div class="lesson-row"><div class="grow"><b>{{ c.name }}</b><div class="muted">{{ c.get_level_display }}{% if c.subject %} · {{ c.subject }}{% endif %} · {{ c.n }} student(s){% if c.academic_year %} · {{ c.academic_year }}{% endif %}</div></div><a class="btn sm primary" href="{{ c.get_absolute_url }}">Open</a></div>{% empty %}<p class="muted">No class yet. Create one on the right.</p>{% endfor %}</div>
+<form method="post" class="card stack">{% csrf_token %}<h2>New class</h2>{{ form.as_p }}<button class="btn primary">Create class</button></form></div>{% endblock %}

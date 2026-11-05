@@ -1,0 +1,87 @@
+{% extends "immersive/base.html" %}{% block title %}Teacher dashboard{% endblock %}
+{% block content %}
+<section class="hero art">
+ <div>
+  <h1>{{ greeting }}, {{ user.first_name|default:user.get_username }}!</h1>
+  <p>Turn any book into 3D lessons, pictures, narrated video and a quiz — and see it appear on your students’ dashboard.</p>
+  <div class="acts">
+   <a class="btn primary" href="{% url 'book_create' %}"><svg class="ic sm"><use href="#i-plus"/></svg>Create lessons from a book</a>
+   <a class="btn glass" href="{% url 'work_create' 'assignment' %}"><svg class="ic sm"><use href="#i-file"/></svg>New assignment</a>
+   <a class="btn glass" href="{% url 'work_create' 'diary' %}"><svg class="ic sm"><use href="#i-diary"/></svg>Diary note</a>
+  </div>
+ </div>
+ <div class="hero-art" aria-hidden="true">
+  <svg width="470" height="220" viewBox="0 0 470 220" preserveAspectRatio="xMidYMid meet">
+   <defs>
+    <linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fd0ff"/><stop offset="1" stop-color="#3a63ff"/></linearGradient>
+    <linearGradient id="gp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".28"/><stop offset="1" stop-color="#ffffff" stop-opacity=".06"/></linearGradient>
+    <radialGradient id="gg" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#9be7ff"/><stop offset=".55" stop-color="#3f7bff"/><stop offset="1" stop-color="#1c2f9a"/></radialGradient>
+   </defs>
+   <rect x="40" y="46" width="120" height="132" rx="16" fill="url(#gp)" stroke="#9fb7ff" stroke-opacity=".5"/>
+   <path d="M100 76c-14 0-24 10-24 23 0 22 24 40 24 40s24-18 24-40c0-13-10-23-24-23z" fill="none" stroke="#ff7a93" stroke-width="3"/>
+   <path d="M62 150h76" stroke="#9fb7ff" stroke-opacity=".6" stroke-width="3" stroke-linecap="round"/>
+   <rect x="196" y="22" width="150" height="150" rx="18" fill="url(#gp)" stroke="#9fb7ff" stroke-opacity=".5"/>
+   <circle cx="271" cy="92" r="48" fill="url(#gg)"/>
+   <path d="M236 80c14-6 22 6 34 2s14-14 28-8M240 112c10-4 18 6 30 4s16-10 28-6" fill="none" stroke="#7be0a8" stroke-width="5" stroke-linecap="round" opacity=".85"/>
+   <rect x="366" y="58" width="92" height="100" rx="16" fill="url(#gp)" stroke="#9fb7ff" stroke-opacity=".5"/>
+   <circle cx="412" cy="104" r="17" fill="#ffd27a"/><ellipse cx="412" cy="106" rx="36" ry="8" fill="none" stroke="#ffb86b" stroke-width="3" transform="rotate(-18 412 106)"/>
+   <rect x="214" y="150" width="112" height="46" rx="23" fill="#f4f6ff"/><rect x="226" y="158" width="88" height="30" rx="15" fill="#1d2b6b"/>
+   <circle cx="248" cy="173" r="5" fill="#7fd0ff"/><circle cx="292" cy="173" r="5" fill="#7fd0ff"/>
+  </svg>
+  <div class="script">Learn<br>Explore<br>Grow</div>
+ </div>
+</section>
+
+<div class="grid g4" style="margin-bottom:18px">
+ <a class="card stat" href="{% url 'class_list' %}" style="color:inherit"><span class="tile t-violet"><svg class="ic lg"><use href="#i-school"/></svg></span><div class="grow"><div class="num">{{ dash_stats.classes }}</div><div class="lbl">Total classes</div>{% if dash_stats.classes_new %}<div class="delta"><svg class="ic sm"><use href="#i-up"/></svg>{{ dash_stats.classes_new }} this month</div>{% endif %}</div><svg class="ic chev"><use href="#i-chev"/></svg></a>
+ <a class="card stat" href="{% url 'progress' %}" style="color:inherit"><span class="tile t-mint"><svg class="ic lg"><use href="#i-users"/></svg></span><div class="grow"><div class="num">{{ dash_stats.students }}</div><div class="lbl">Total students</div>{% if dash_stats.students_new %}<div class="delta"><svg class="ic sm"><use href="#i-up"/></svg>{{ dash_stats.students_new }} this month</div>{% endif %}</div><svg class="ic chev"><use href="#i-chev"/></svg></a>
+ <a class="card stat" href="{% url 'class_list' %}" style="color:inherit"><span class="tile t-blue"><svg class="ic lg"><use href="#i-vr"/></svg></span><div class="grow"><div class="num">{{ dash_stats.sessions }}</div><div class="lbl">Sessions</div>{% if dash_stats.sessions_new %}<div class="delta"><svg class="ic sm"><use href="#i-up"/></svg>{{ dash_stats.sessions_new }} this month</div>{% endif %}</div><svg class="ic chev"><use href="#i-chev"/></svg></a>
+ <a class="card stat" href="{% url 'work_list' %}" style="color:inherit"><span class="tile t-amber"><svg class="ic lg"><use href="#i-file"/></svg></span><div class="grow"><div class="num">{{ dash_stats.work }}</div><div class="lbl">Quizzes & assignments</div>{% if dash_stats.work_new %}<div class="delta"><svg class="ic sm"><use href="#i-up"/></svg>{{ dash_stats.work_new }} this month</div>{% endif %}</div><svg class="ic chev"><use href="#i-chev"/></svg></a>
+</div>
+
+<div class="grid dash3" id="dash-main" style="align-items:start;margin-bottom:18px">
+ <!-- My classes -->
+ <section class="card panel"><div class="panel-h"><span class="tile sm t-blue"><svg class="ic"><use href="#i-school"/></svg></span><h2>My classes</h2><a class="link" href="{% url 'class_list' %}">View all <svg class="ic sm"><use href="#i-arrow"/></svg></a></div>
+  <div class="panel-b">{% for c in dash_classes %}<div class="item"><div class="cthumb g-{{ c.tone }}"><svg class="ic lg"><use href="#i-cube"/></svg><span class="tag">3D</span></div><div class="grow"><b>{{ c.name }}</b><div class="sub">{{ c.get_level_display }}{% if c.subject %} · {{ c.subject }}{% endif %}</div><div class="sub"><svg class="ic sm"><use href="#i-users"/></svg>{{ c.n }} student{{ c.n|pluralize }}</div></div><a class="btn sm soft" href="{{ c.get_absolute_url }}">Open</a></div>
+  {% empty %}<div class="empty-box"><div><b>No classes yet</b><span class="muted">Create a class to enrol students and schedule sessions.</span></div><a class="btn sm primary" href="{% url 'class_list' %}">Create class</a></div>{% endfor %}</div></section>
+ <!-- Upcoming sessions -->
+ <section class="card panel"><div class="panel-h"><span class="tile sm t-mint"><svg class="ic"><use href="#i-cal"/></svg></span><h2>Upcoming sessions</h2><a class="link" href="{% url 'class_list' %}">View all <svg class="ic sm"><use href="#i-arrow"/></svg></a></div>
+  <div class="panel-b">{% for s in dash_sessions %}<div class="item"><div class="when {% if s.day_label != 'Today' %}soon{% endif %}">{{ s.scheduled_for|date:"H:i" }}<small>{{ s.day_label }}</small></div><div class="grow"><b>{{ s.lesson.title }}</b><div class="sub">{{ s.school_class.name }}{% if s.room %} · {{ s.room }}{% endif %}</div><div><span class="pill">{{ s.get_mode_display }}</span>{% if s.status == 'live' %} <span class="pill mint">Live now</span>{% endif %}</div></div><a href="{{ s.school_class.get_absolute_url }}" class="icon-btn" aria-label="Open class"><svg class="ic sm"><use href="#i-chev"/></svg></a></div>
+  {% empty %}<div class="empty-box"><div><b>No sessions scheduled</b><span class="muted">Open a class to schedule the next lesson.</span></div></div>{% endfor %}</div></section>
+ <!-- Latest lessons -->
+ <section class="card panel"><div class="panel-h"><span class="tile sm t-blue"><svg class="ic"><use href="#i-book"/></svg></span><h2>Latest lessons</h2></div>
+  <div class="panel-b">{% for l in my_lessons|slice:":5" %}<div class="item"><div class="cthumb sm g-a" {% if l.thumb %}style="background-image:url('{{ l.thumb }}')"{% endif %}>{% if not l.thumb %}<svg class="ic"><use href="#i-cube"/></svg>{% endif %}</div><div class="grow"><b><a href="{{ l.get_absolute_url }}" style="color:inherit">{{ l.title }}</a></b><div class="sub">{{ l.book.title }} · {{ l.nq }} quiz Qs</div><div><span class="badge {{ l.status }}">{{ l.get_status_display }}</span></div></div>
+   <details class="kebab"><summary aria-label="Lesson actions"><svg class="ic sm"><use href="#i-dots"/></svg></summary><div class="menu"><a href="{{ l.get_absolute_url }}"><svg class="ic sm"><use href="#i-chev"/></svg>Open</a><a href="{% url 'lesson_edit' l.pk %}"><svg class="ic sm"><use href="#i-edit"/></svg>Edit</a>
+   <form method="post" action="{% url 'lesson_delete' l.pk %}" onsubmit="return confirm('Delete lesson “{{ l.title|escapejs }}” with its quiz and student results?')">{% csrf_token %}<button class="bad"><svg class="ic sm"><use href="#i-trash"/></svg>Delete</button></form></div></details></div>
+  {% empty %}<div class="empty-box"><div><b>No lessons yet</b><span class="muted">Create your first lessons from a book.</span></div></div>{% endfor %}</div></section>
+</div>
+
+<div class="grid dash3" style="margin-bottom:18px">
+ <section class="card" style="grid-column:span 2"><div class="row" style="margin-bottom:6px"><div class="row" style="gap:12px;justify-content:flex-start"><span class="tile sm t-violet"><svg class="ic"><use href="#i-vr"/></svg></span><div><h2 style="margin:0">Explore the VR lab</h2><div class="muted">Book headsets, check device status and run lessons in VR.</div></div></div><a class="btn primary" href="{% url 'lab' %}">Open lab & devices</a></div></section>
+ <section class="card"><h2 style="display:flex;align-items:center;gap:8px"><svg class="ic" style="color:var(--primary)"><use href="#i-spark"/></svg>Quick actions</h2>
+  <div class="quick"><a class="q1" href="{% url 'book_create' %}"><svg class="ic lg" style="color:var(--primary)"><use href="#i-plus"/></svg>Create lesson</a><a class="q2" href="{% url 'work_create' 'assignment' %}"><svg class="ic lg" style="color:var(--mint)"><use href="#i-file"/></svg>Add assignment</a><a class="q3" href="{% url 'work_create' 'quiz' %}"><svg class="ic lg" style="color:var(--violet)"><use href="#i-quiz"/></svg>Add quiz</a><a class="q4" href="{% url 'progress' %}"><svg class="ic lg" style="color:var(--amber)"><use href="#i-chart"/></svg>View analytics</a></div></section>
+</div>
+
+{% if reviewer and review_queue %}<section class="card" style="margin-bottom:18px"><h2>Review queue</h2>
+{% for l in review_queue %}<div class="lesson-row"><div class="grow"><b>{{ l.title }}</b><div class="muted">{{ l.book.title }}</div></div><a class="btn sm" href="{{ l.get_absolute_url }}">Review</a></div>{% endfor %}</section>{% endif %}
+
+<div class="grid g2" style="margin-bottom:18px;align-items:start">
+ <section class="card panel"><div class="panel-h"><span class="tile sm t-amber"><svg class="ic"><use href="#i-book"/></svg></span><h2>My books</h2><span class="muted">{{ stats.books }} book{{ stats.books|pluralize }} · {{ stats.published }} live · {{ stats.drafts }} not published</span></div>
+  <div class="panel-b">{% for b in books %}<div class="lesson-row"><div class="grow"><b>{{ b.title }}</b><div class="muted">{{ b.subject }} {{ b.grade }} · {{ b.n }} lesson(s) · <b>{{ b.n_pub }}</b> published</div></div><a class="btn sm" href="{{ b.get_absolute_url }}">Open</a>
+   <form method="post" action="{% url 'book_delete' b.pk %}" onsubmit="return confirm('Delete the book “{{ b.title|escapejs }}” with ALL its lessons, quizzes and student results?')">{% csrf_token %}<button class="btn sm danger" aria-label="Delete book"><svg class="ic sm"><use href="#i-trash"/></svg></button></form></div>
+  {% empty %}<p class="muted">No books yet. <a href="{% url 'book_create' %}">Create your first one</a>.</p>{% endfor %}</div></section>
+ <section class="card panel" id="to-grade"><div class="panel-h"><span class="tile sm t-rose"><svg class="ic"><use href="#i-pen"/></svg></span><h2>Waiting for your marks</h2><span class="badge {% if stats.to_grade %}review{% endif %}">{{ stats.to_grade }}</span></div>
+  <div class="panel-b">{% for s in to_grade %}<div class="item"><div class="grow"><b>{{ s.who }}</b><div class="sub">{{ s.title }} · {{ s.when|date:"d M H:i" }}{% if s.extra %} · {{ s.extra }}{% endif %}</div></div><a class="btn sm primary" href="{{ s.url }}">Give marks</a></div>
+  {% empty %}<p class="muted">All caught up.</p>{% endfor %}</div></section>
+</div>
+
+<div class="grid g2" style="margin-bottom:18px;align-items:start">
+ <section class="card panel"><div class="panel-h"><span class="tile sm t-violet"><svg class="ic"><use href="#i-folder"/></svg></span><h2>Assignments, quizzes & diary</h2><a class="link" href="{% url 'work_list' %}">All <svg class="ic sm"><use href="#i-arrow"/></svg></a></div>
+  <div class="panel-b">{% for a in my_work %}<div class="item"><div class="grow"><b>{{ a.title }} {% if not a.published %}<span class="badge draft">Hidden</span>{% endif %}</b><div class="sub">{{ a.get_kind_display }}{% if a.due_date %} · due {{ a.due_date|date:"d M H:i" }}{% endif %} · {% if a.kind == 'quiz' %}{{ a.n_att }} attempt(s){% else %}{{ a.n_sub }} {% if a.kind == 'diary' %}seen{% else %}submission(s){% endif %}{% endif %}</div></div><a class="btn sm" href="{{ a.get_absolute_url }}">Open</a></div>
+  {% empty %}<p class="muted">Nothing given yet.</p>{% endfor %}</div></section>
+ <section class="card panel"><div class="panel-h"><span class="tile sm t-mint"><svg class="ic"><use href="#i-users"/></svg></span><h2>Student analytics</h2><a class="link" href="{% url 'progress' %}">Full report <svg class="ic sm"><use href="#i-arrow"/></svg></a></div>
+  <div class="panel-b"><table><tr><th>Student</th><th>Quizzes</th><th>Avg</th><th>Assign.</th><th>3D</th></tr>
+  {% for r in class_rows %}<tr><td><a href="{% url 'student_detail' r.student.pk %}">{{ r.student.username }}</a></td><td>{{ r.attempts }}</td><td>{% if r.avg is not None %}{{ r.avg }}%{% else %}–{% endif %}</td><td>{{ r.submitted }}/{{ r.of }}</td><td>{{ r.views }}</td></tr>
+  {% empty %}<tr><td colspan="5" class="muted">No student activity yet.</td></tr>{% endfor %}</table></div></section>
+</div>
+{% endblock %}

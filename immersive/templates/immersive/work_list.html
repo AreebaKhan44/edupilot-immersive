@@ -1,0 +1,42 @@
+{% extends "immersive/base.html" %}{% block title %}Assignments{% endblock %}
+{% block content %}
+<div class="pagehead">
+ <span class="tile t-amber"><svg class="ic lg"><use href="#i-folder"/></svg></span>
+ <div class="grow"><h1>{% if kind == 'diary' %}Diary{% elif kind == 'quiz' %}Quizzes{% elif kind == 'assignment' %}Assignments{% elif teacher_view %}Assignments, quizzes & diary{% else %}My assignments{% endif %}</h1>
+ <p class="muted">{% if teacher_view %}Manage assignments, quizzes and diary notes for your classes.{% else %}Everything your teachers have given you.{% endif %}</p></div>
+ {% if teacher_view %}<div class="row" style="gap:10px"><a class="btn primary" href="{% url 'work_create' 'assignment' %}"><svg class="ic sm"><use href="#i-plus"/></svg>Assignment</a><a class="btn mint" href="{% url 'work_create' 'quiz' %}"><svg class="ic sm"><use href="#i-plus"/></svg>Quiz</a><a class="btn violet" href="{% url 'work_create' 'diary' %}"><svg class="ic sm"><use href="#i-plus"/></svg>Diary note</a></div>{% endif %}
+</div>
+<div class="row" style="align-items:center;margin-bottom:14px">
+ <div class="tabs" style="margin:0"><a href="{% url 'work_list' %}" class="{% if not kind %}on{% endif %}">All</a><a href="?kind=assignment" class="{% if kind == 'assignment' %}on{% endif %}">Assignments</a><a href="?kind=quiz" class="{% if kind == 'quiz' %}on{% endif %}">Quizzes</a><a href="?kind=diary" class="{% if kind == 'diary' %}on{% endif %}">Diary notes</a></div>
+ <form method="get" class="toolbar" style="flex:1;justify-content:flex-end;min-width:320px">{% if kind %}<input type="hidden" name="kind" value="{{ kind }}">{% endif %}
+  <div class="search"><svg class="ic sm"><use href="#i-search"/></svg><input type="search" name="q" value="{{ q }}" placeholder="Search by title, unit or keyword…" aria-label="Search work"></div>
+  {% if teacher_view %}<select name="status" aria-label="Filter by status" onchange="this.form.submit()"><option value="">All status</option><option value="active" {% if status == 'active' %}selected{% endif %}>Active</option><option value="hidden" {% if status == 'hidden' %}selected{% endif %}>Hidden</option></select>{% endif %}
+  <select name="sort" aria-label="Sort" onchange="this.form.submit()"><option value="new" {% if sort == 'new' %}selected{% endif %}>Newest first</option><option value="old" {% if sort == 'old' %}selected{% endif %}>Oldest first</option><option value="title" {% if sort == 'title' %}selected{% endif %}>Title A–Z</option><option value="due" {% if sort == 'due' %}selected{% endif %}>Due date</option></select>
+ </form>
+</div>
+
+{% for a in items %}<article class="work">
+ <span class="tile {% if a.kind == 'quiz' %}t-violet{% elif a.kind == 'diary' %}t-amber{% else %}t-blue{% endif %}"><svg class="ic lg"><use href="#i-{% if a.kind == 'quiz' %}quiz{% elif a.kind == 'diary' %}diary{% else %}file{% endif %}"/></svg></span>
+ <div class="grow">
+  <div class="ttl"><b>{{ a.title }}</b><span class="pill {% if a.kind == 'quiz' %}{% elif a.kind == 'diary' %}amber{% else %}blue{% endif %}">{{ a.get_kind_display }}</span></div>
+  {% if a.description %}<div class="desc">{{ a.description|truncatechars:110 }}</div>{% elif a.lesson %}<div class="desc">{{ a.lesson.title }}</div>{% endif %}
+  <div class="meta">
+   {% if teacher_view %}
+    <span><svg class="ic sm"><use href="#i-check"/></svg>{% if a.kind == 'quiz' %}{{ a.n_att }} attempt(s){% elif a.kind == 'diary' %}{{ a.n_sub }} seen{% else %}{{ a.n_sub }} submission(s){% endif %}</span>
+   {% else %}<span><svg class="ic sm"><use href="#i-users"/></svg>from {{ a.owner.username }}</span>{% endif %}
+   {% if a.lesson.book.grade %}<span><svg class="ic sm"><use href="#i-school"/></svg>{{ a.lesson.book.grade }}</span>{% endif %}
+   {% if a.due_date %}<span><svg class="ic sm"><use href="#i-clock"/></svg>Due {{ a.due_date|date:"d M H:i" }}</span>{% endif %}
+   <span><svg class="ic sm"><use href="#i-cal"/></svg>Created {{ a.created|date:"d M Y" }}</span>
+  </div>
+ </div>
+ {% if teacher_view %}
+  <span class="status {% if not a.published %}off{% endif %}">{% if a.published %}Active{% else %}Hidden{% endif %}</span>
+ {% elif a.done %}<span class="status">{% if a.kind == 'diary' %}Seen{% elif a.kind == 'quiz' %}{{ a.qstate.label }}{% elif a.sub.is_graded %}Marks {{ a.sub.marks }}/{{ a.total_marks }}{% else %}Submitted – waiting for marks{% endif %}</span>
+ {% else %}<span class="status todo">{% if a.retry %}Retry allowed{% elif a.kind == 'diary' %}New{% else %}To do{% endif %}</span>{% endif %}
+ {% if a.is_overdue and not a.done and not teacher_view %}<span class="status late">Overdue</span>{% endif %}
+ {% if not teacher_view and a.kind == 'quiz' and not a.done %}<a class="btn mint" href="{% url 'quiz' a.lesson_id %}">{% if a.retry %}Retry quiz{% else %}Start quiz{% endif %}</a>{% endif %}
+ <a class="btn primary" href="{{ a.get_absolute_url }}" style="padding:9px 22px">Open</a>
+ {% if teacher_view %}<details class="kebab"><summary aria-label="More actions"><svg class="ic sm"><use href="#i-dots"/></svg></summary><div class="menu"><a href="{{ a.get_absolute_url }}"><svg class="ic sm"><use href="#i-chev"/></svg>Open</a><form method="post" action="{% url 'work_manage' a.pk %}">{% csrf_token %}<input type="hidden" name="action" value="toggle"><button><svg class="ic sm"><use href="#i-edit"/></svg>{% if a.published %}Hide from students{% else %}Show to students{% endif %}</button></form><form method="post" action="{% url 'work_manage' a.pk %}" onsubmit="return confirm('Delete “{{ a.title|escapejs }}”?')">{% csrf_token %}<input type="hidden" name="action" value="delete"><button class="bad"><svg class="ic sm"><use href="#i-trash"/></svg>Delete</button></form></div></details>{% endif %}
+</article>
+{% empty %}<div class="card empty-box" style="justify-content:center;padding:34px"><div style="text-align:center"><b>Nothing here yet</b><span class="muted">{% if q %}No results for “{{ q }}”. Try a different keyword.{% elif teacher_view %}Create an assignment, quiz or diary note to get started.{% else %}Your teachers haven’t given anything yet.{% endif %}</span></div></div>{% endfor %}
+{% endblock %}

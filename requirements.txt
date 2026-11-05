@@ -1,0 +1,8 @@
+Django>=4.2,<7
+Pillow>=10.1
+pypdf>=4.0
+# Optional but recommended (voice-over + Urdu text in video frames)
+gTTS>=2.5
+arabic-reshaper>=3.0
+python-bidi>=0.4.2
+psycopg2-binary>=2.9   # PostgreSQL driver (not needed if DB_ENGINE=sqlite)
