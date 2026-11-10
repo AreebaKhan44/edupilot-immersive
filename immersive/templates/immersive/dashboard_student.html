@@ -1,0 +1,51 @@
+{% extends "immersive/base.html" %}{% block title %}My dashboard{% endblock %}
+{% block content %}
+<section class="hero student">
+ <div><h1>Welcome, {{ user.first_name|default:user.username }}! 👋</h1><p>Your learning journey is on track. Keep going!</p></div>
+ <svg class="art-img" width="260" height="150" viewBox="0 0 260 150" aria-hidden="true"><use href="#art-books"/></svg>
+</section>
+
+<div class="grid g4" style="margin-bottom:18px">
+ <a class="card stat-s" href="#learn"><span class="disc d-violet"><svg class="ic lg"><use href="#i-file"/></svg></span><div class="grow"><div class="lbl">Lectures Available</div><div class="num">{{ n_lessons }}</div></div><span class="go-circle"><svg class="ic sm"><use href="#i-chev"/></svg></span></a>
+ <a class="card stat-s" href="{% url 'progress' %}"><span class="disc d-green"><svg class="ic lg"><use href="#i-check"/></svg></span><div class="grow"><div class="lbl">Quizzes Submitted</div><div class="num">{{ n_attempts }}</div></div><span class="go-circle"><svg class="ic sm"><use href="#i-chev"/></svg></span></a>
+ <a class="card stat-s" href="{% url 'progress' %}"><span class="disc d-orange"><svg class="ic lg"><use href="#i-target"/></svg></span><div class="grow"><div class="lbl">Average Quiz Marks</div><div class="num">{% if avg_pct is not None %}{{ avg_pct }}%{% else %}–{% endif %}</div></div><span class="go-circle"><svg class="ic sm"><use href="#i-chev"/></svg></span></a>
+ <a class="card stat-s" href="#learn"><span class="disc d-blue"><svg class="ic lg"><use href="#i-cube"/></svg></span><div class="grow"><div class="lbl">3D Scenes</div><div class="num">{{ scenes_viewed }}</div></div><span class="go-circle"><svg class="ic sm"><use href="#i-chev"/></svg></span></a>
+</div>
+
+<div class="grid g2e" style="margin-bottom:18px;align-items:start">
+ <section class="card" id="todo">
+  <div class="row" style="margin-bottom:8px"><div class="panel-title"><span class="disc d-green" style="width:34px;height:34px;box-shadow:none"><svg class="ic sm"><use href="#i-check"/></svg></span><h2>To Do</h2></div><a class="pill-link" href="{% url 'work_list' %}">View All <svg class="ic sm"><use href="#i-arrow"/></svg></a></div>
+  {% for a in pending|slice:":5" %}<div class="todo">
+   <span class="ico {% if a.kind == 'quiz' %}{% elif a.kind == 'diary' %}o{% else %}g{% endif %}"><svg class="ic sm"><use href="#i-{% if a.kind == 'quiz' %}quiz{% elif a.kind == 'diary' %}diary{% else %}file{% endif %}"/></svg></span>
+   <div class="grow"><b>{% if a.kind == 'quiz' and a.title|slice:':4' != 'Quiz' %}Quiz: {% endif %}{{ a.title }}</b><div class="sub">{{ a.get_kind_display }}{% if a.lesson %} • {{ a.lesson.title }}{% endif %}{% if a.due_date %} • <span {% if a.due_date < now %}style="color:#d43b4d;font-weight:700"{% endif %}>due {{ a.due_date|date:"d M H:i" }}</span>{% endif %}{% if a.retry %} • <span style="color:#a96a0b;font-weight:700">Retry allowed</span>{% endif %}</div></div>
+   <a class="btn sm blue wide" href="{% if a.kind == 'quiz' %}{% url 'quiz' a.lesson_id %}{% else %}{{ a.get_absolute_url }}{% endif %}">{% if a.kind == 'quiz' %}{% if a.retry %}Retry Quiz{% else %}Start Quiz{% endif %}{% elif a.kind == 'diary' %}Read{% else %}{% if a.retry %}Submit Again{% else %}Open{% endif %}{% endif %}</a></div>
+  {% empty %}<p class="muted" style="padding:14px 0">Nothing pending 🎉 You are all caught up.</p>{% endfor %}
+ </section>
+
+ <section class="card">
+  <div class="row" style="margin-bottom:8px"><div class="panel-title"><span class="disc d-blue" style="width:34px;height:34px;box-shadow:none"><svg class="ic sm"><use href="#i-chart"/></svg></span><h2>My Quiz Results</h2></div><a class="pill-link" href="{% url 'progress' %}">Details <svg class="ic sm"><use href="#i-arrow"/></svg></a></div>
+  {% for a in attempts|slice:":5" %}<div class="res"><span class="n">{{ forloop.counter }}</span><div class="grow"><b>Quiz: {{ a.lesson.title }}</b><div class="sub">{% if a.feedback %}{{ a.feedback|truncatechars:60 }}{% else %}Submitted {{ a.created|date:"d M H:i" }}{% endif %}</div></div>
+   {% if a.is_graded %}<span class="score {% if a.final_percent < 40 %}low{% elif a.final_percent < 70 %}mid{% endif %}">{{ a.marks }}/{{ a.total }}</span>{% else %}<span class="score wait">Pending</span>{% endif %}</div>
+  {% empty %}<p class="muted" style="padding:14px 0">No quiz attempts yet. Start a quiz from your To Do list.</p>{% endfor %}
+  <div class="chips"><span>Assignments submitted <b>{{ n_submitted }}</b></span><span>Graded <b>{{ n_graded }}</b>{% if avg_assignment_pct is not None %} · avg <b>{{ avg_assignment_pct }}%</b>{% endif %}</span><span>Videos watched <b>{{ videos_watched }}</b></span>{% if best_pct is not None %}<span>Best <b>{{ best_pct }}%</b></span>{% endif %}</div>
+ </section>
+</div>
+
+<section class="card" id="learn" style="margin-bottom:18px">
+ <div class="panel-title" style="margin-bottom:6px"><span class="disc d-violet" style="width:34px;height:34px;box-shadow:none"><svg class="ic sm"><use href="#i-cube"/></svg></span><div><h2>Learn Now</h2><div class="sub">Open a 3D lesson, watch the video or take the quiz.</div></div></div>
+ {% for r in lesson_rows %}<div class="cont">
+  <span class="sq o{% cycle '1' '2' '3' %}"><svg class="ic"><use href="#i-cube"/></svg></span>
+  <div class="grow"><b>{{ r.lesson.title }}</b><div class="sub">{{ r.lesson.book.title }} • 3D {{ r.seen }}/{{ r.scenes }} scenes{% if r.video %} • video watched{% endif %}{% if r.has_quiz %} • quiz: {{ r.quiz_state.label }}{% endif %}</div></div>
+  <a class="btn sm blue" href="{% url 'viewer' r.lesson.pk %}"><svg class="ic sm"><use href="#i-cube"/></svg>3D</a>
+  <a class="btn sm" href="{{ r.lesson.get_absolute_url }}"><svg class="ic sm"><use href="#i-play"/></svg>Video & notes</a>
+  {% if r.has_quiz %}{% if r.quiz_state.can_attempt %}<a class="btn sm mint" href="{% url 'quiz' r.lesson.pk %}"><svg class="ic sm"><use href="#i-quiz"/></svg>{% if r.quiz_state.code == 'retry' %}Retry quiz{% else %}Quiz{% endif %}</a>{% else %}<a class="btn sm" href="{% url 'quiz_result' r.lesson.pk %}"><svg class="ic sm"><use href="#i-quiz"/></svg>Quiz status</a>{% endif %}{% endif %}
+ </div>
+ {% empty %}<p class="muted">Your teacher has not published any lesson yet.</p>{% endfor %}
+</section>
+
+<section class="card">
+ <div class="row" style="margin-bottom:8px"><div class="panel-title"><span class="disc d-orange" style="width:34px;height:34px;box-shadow:none"><svg class="ic sm"><use href="#i-diary"/></svg></span><h2>Diary</h2></div><a class="pill-link" href="{% url 'work_list' %}?kind=diary">All <svg class="ic sm"><use href="#i-arrow"/></svg></a></div>
+ {% for d in diary %}<div class="todo"><span class="ico o"><svg class="ic sm"><use href="#i-diary"/></svg></span><div class="grow"><b>{{ d.title }} {% if not d.seen %}<span class="badge review">New</span>{% endif %}</b><div class="sub">{{ d.created|date:"d M" }} • {{ d.owner.username }}</div></div><a class="btn sm" href="{{ d.get_absolute_url }}">Read</a></div>
+ {% empty %}<p class="muted">No diary notes.</p>{% endfor %}
+</section>
+{% endblock %}

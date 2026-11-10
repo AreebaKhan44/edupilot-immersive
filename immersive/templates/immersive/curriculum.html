@@ -1,0 +1,37 @@
+{% extends "immersive/base.html" %}{% block title %}Curriculum{% endblock %}
+{% block content %}
+<div class="pagehead">
+ <span class="tile t-amber"><svg class="ic lg"><use href="#i-layers"/></svg></span>
+ <div class="grow"><div class="eyebrow" style="margin:0">Coordinator</div><h1>Curriculum & outcomes</h1>
+ <p class="muted">Manage curriculum versions, subjects and learning outcomes. Lessons are linked to outcomes on the Lesson design page.</p></div>
+</div>
+<div class="grid g2e" style="margin-bottom:18px;align-items:start">
+ <form method="post" class="card">{% csrf_token %}<input type="hidden" name="form" value="curriculum">
+  <div class="card-h"><span class="tile sm t-blue"><svg class="ic"><use href="#i-layers"/></svg></span><h2>New curriculum / syllabus version</h2></div>
+  {{ forms.curriculum.non_field_errors }}
+  <div class="fgrid">{% for f in forms.curriculum %}<div class="field"><label for="{{ f.id_for_label }}">{{ f.label }}{% if f.field.required %} <i class="req">*</i>{% endif %}</label>{{ f }}{{ f.errors }}</div>{% endfor %}</div>
+  <button class="btn primary"><svg class="ic sm"><use href="#i-check"/></svg>Save curriculum</button></form>
+ <form method="post" class="card">{% csrf_token %}<input type="hidden" name="form" value="subject">
+  <div class="card-h"><span class="tile sm t-violet"><svg class="ic"><use href="#i-book"/></svg></span><h2>New subject</h2></div>
+  {{ forms.subject.non_field_errors }}
+  {% for f in forms.subject %}<div class="field"><label for="{{ f.id_for_label }}">{{ f.label }}{% if f.field.required %} <i class="req">*</i>{% endif %}</label>{{ f }}{{ f.errors }}</div>{% endfor %}
+  <button class="btn violet"><svg class="ic sm"><use href="#i-plus"/></svg>Save subject</button>
+  <div class="empty-box" style="margin-top:16px"><svg class="ic lg" style="color:var(--violet)"><use href="#i-layers"/></svg><div><b>Subjects ({{ subjects|length }})</b><span class="muted">{% for s in subjects %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% empty %}No subjects added yet.{% endfor %}</span></div></div></form>
+</div>
+<form method="post" class="card" style="margin-bottom:22px">{% csrf_token %}<input type="hidden" name="form" value="outcome">
+ <div class="card-h"><span class="tile sm t-mint"><svg class="ic"><use href="#i-target"/></svg></span><h2>New learning outcome</h2></div>
+ {{ forms.outcome.non_field_errors }}
+ <div class="fgrid three">{% for f in forms.outcome %}{% if f.name == 'curriculum' or f.name == 'subject' or f.name == 'level' %}<div class="field"><label for="{{ f.id_for_label }}">{{ f.label }} <i class="req">*</i></label>{{ f }}{{ f.errors }}</div>{% endif %}{% endfor %}</div>
+ <div class="fgrid">{% for f in forms.outcome %}{% if f.name == 'code' or f.name == 'expected_evidence' %}<div class="field"><label for="{{ f.id_for_label }}">{{ f.label }}{% if f.field.required %} <i class="req">*</i>{% endif %}</label>{{ f }}{{ f.errors }}</div>{% endif %}{% endfor %}
+ {% for f in forms.outcome %}{% if f.name == 'description' %}<div class="field wide"><label for="{{ f.id_for_label }}">Outcome description <i class="req">*</i></label>{{ f }}{{ f.errors }}</div>{% endif %}{% endfor %}</div>
+ <button class="btn primary"><svg class="ic sm"><use href="#i-check"/></svg>Save outcome</button></form>
+
+{% if reviewer_role %}<form method="post" action="{% url 'curriculum_new_version' %}" class="card" style="margin-bottom:18px">{% csrf_token %}<div class="card-h"><h2>New version of a curriculum (change register)</h2></div><p class="muted">Outcomes are copied; lessons linked to the old version are flagged for review. Running classes keep the version they were given.</p>
+<div class="fgrid">{% for f in version_form %}<div class="field"><label>{{ f.label }}</label>{{ f }}</div>{% endfor %}</div><button class="btn primary">Create new version</button></form>
+{% if changes %}<h2>Change register</h2>{% for c in changes %}<div class="lesson-row"><div class="grow"><b>{{ c.previous }} → {{ c.curriculum }}</b> · {{ c.created|date:"d M Y" }} · {{ c.reviewer.username|default:"–" }}<div class="muted">{{ c.reason }} — {{ c.impact }}</div></div></div>{% endfor %}{% endif %}{% endif %}
+<h2>Curricula</h2>
+{% for c in curricula %}<div class="lesson-row"><span class="tile sm t-blue"><svg class="ic"><use href="#i-layers"/></svg></span><div class="grow"><b>{{ c }}</b> <span class="muted">{{ c.country }} · from {{ c.effective_from|default:"-" }} · {{ c.n }} outcome(s)</span></div></div>{% empty %}<p class="muted">None yet.</p>{% endfor %}
+<h2 style="margin-top:22px">Outcomes</h2>
+<div style="overflow-x:auto"><table class="t"><tr><th>Code</th><th>Subject / level</th><th>Description</th><th>Evidence</th><th>Lessons</th></tr>
+{% for o in outcome_list %}<tr><td><b>{{ o.code }}</b><br><span class="muted">{{ o.curriculum }}</span></td><td>{{ o.subject }}<br><span class="muted">{{ o.get_level_display }}</span></td><td>{{ o.description }}</td><td>{{ o.expected_evidence }}</td><td>{{ o.n_lessons }}</td></tr>{% empty %}<tr><td colspan="5" class="muted">No outcomes yet.</td></tr>{% endfor %}</table></div>
+{% endblock %}

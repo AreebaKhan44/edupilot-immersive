@@ -1,0 +1,7 @@
+{% extends "immersive/base.html" %}{% block title %}Guardian{% endblock %}
+{% block content %}<h1>👨‍👩‍👧 My children's learning</h1>
+{% for r in rows %}<div class="card" style="margin-bottom:14px"><h2>{{ r.student.get_full_name|default:r.student.username }}</h2>
+{% for p in r.progress %}<div class="lesson-row"><div class="grow"><b>{{ p.outcome.code }}</b> {{ p.outcome.description|truncatechars:80 }}</div><span class="badge">{{ p.get_status_display }}</span></div>{% endfor %}
+{% for a in r.attempts %}<div class="muted">📝 {{ a.lesson.title }}: {{ a.marks }}/{{ a.total }}{% if a.feedback %} – {{ a.feedback }}{% endif %}</div>{% endfor %}
+{% for s in r.subs %}<div class="muted">📄 {{ s.assignment.title }}: {{ s.marks }}/{{ s.assignment.total_marks }}</div>{% endfor %}</div>
+{% empty %}<p class="muted">No learner is linked to your account yet. Ask the school administrator to link your child.</p>{% endfor %}{% endblock %}

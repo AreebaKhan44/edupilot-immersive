@@ -1,0 +1,11 @@
+{% extends "immersive/base.html" %}{% block title %}Edit {{ lesson.title }}{% endblock %}
+{% block content %}<div class="eyebrow">Edit lesson plan</div><h1>{{ lesson.title }}</h1>
+<form method="post" class="stack">{% csrf_token %}{{ formset.management_form }}{% if add %}<input type="hidden" name="add" value="1">{% endif %}{{ formset.non_form_errors }}
+<div class="card"><div class="field"><label>Lesson title</label><input type="text" name="title" value="{{ lesson.title }}"></div>
+<div class="field"><label>Objective</label><textarea name="objective" rows="2">{{ lesson.objective }}</textarea></div></div>
+{% for f in formset %}<div class="card">{{ f.id }}<div class="row"><h3>{% if f.instance.pk %}Scene {{ forloop.counter }}{% else %}➕ New scene{% endif %}</h3><label class="check" style="color:#d43b4d">{{ f.DELETE }} 🗑 Delete this scene</label></div>{{ f.non_field_errors }}
+<div class="field"><label>Title</label>{{ f.title }}{{ f.title.errors }}</div><div class="field"><label>Narration (voice-over)</label>{{ f.narration }}{{ f.narration.errors }}</div>
+<div class="grid g3"><div class="field"><label>3D visual</label>{{ f.visual_type }}</div><div class="field"><label>3D labels</label>{{ f.labels_text }}</div><div class="field"><label>Key points</label>{{ f.key_points_text }}</div></div></div>{% endfor %}
+<button class="btn primary" type="submit">💾 Save (creates new version)</button> {% if not add %}<a class="btn" href="?add=1">➕ Add a scene</a>{% endif %} <a class="btn" href="{{ lesson.get_absolute_url }}">Cancel</a>
+<span class="muted">Saving puts the lesson back to Draft: publish it again afterwards.</span></form>
+<form method="post" action="{% url 'lesson_delete' lesson.pk %}" style="margin-top:22px" onsubmit="return confirm('Delete this whole lesson with its scenes, quiz, assignments and student results? This cannot be undone.')">{% csrf_token %}<button class="btn danger">🗑 Delete this lesson</button></form>{% endblock %}

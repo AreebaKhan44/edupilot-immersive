@@ -1,0 +1,4 @@
+{% extends "immersive/base.html" %}{% block title %}Sign up{% endblock %}
+{% block content %}<div class="card auth"><div class="eyebrow">EduPilot Immersive</div><h1>Create account</h1>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn primary" type="submit">Sign up</button></form>
+<p class="muted">Already registered? <a href="{% url 'login' %}">Login</a></p></div>{% endblock %}

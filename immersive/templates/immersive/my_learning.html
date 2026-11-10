@@ -1,0 +1,48 @@
+{% extends "immersive/base.html" %}{% block title %}My learning{% endblock %}
+{% block content %}
+<section class="hero student">
+ <div class="head"><svg class="ic big" aria-hidden="true"><use href="#i-school"/></svg><div><h1>My Learning</h1><p>Track your progress and keep going towards your goals!</p><span class="underline"></span></div></div>
+ <svg class="art-img" width="260" height="150" viewBox="0 0 260 150" aria-hidden="true"><use href="#art-books"/></svg>
+</section>
+
+<div class="grid g4" style="margin-bottom:18px">
+ <a class="card stat-s" href="#sessions"><span class="disc d-violet"><svg class="ic lg"><use href="#i-play"/></svg></span><div class="grow"><div class="lbl">Sessions</div><div class="num">{{ upcoming|length }}</div><div class="sub">{% if upcoming %}Upcoming{% else %}No upcoming sessions{% endif %}</div></div><span class="go-circle"><svg class="ic sm"><use href="#i-chev"/></svg></span></a>
+ <a class="card stat-s" href="#sessions"><span class="disc d-green"><svg class="ic lg"><use href="#i-check"/></svg></span><div class="grow"><div class="lbl">Follow-up Tasks</div><div class="num">{{ tasks|length }}</div><div class="sub">{% if tasks %}Open tasks{% else %}Keep learning!{% endif %}</div></div><span class="go-circle"><svg class="ic sm"><use href="#i-chev"/></svg></span></a>
+ <a class="card stat-s" href="{% url 'progress' %}"><span class="disc d-gold"><svg class="ic lg"><use href="#i-trophy"/></svg></span><div class="grow"><div class="lbl">Average Quiz Score</div><div class="num">{% if avg_pct is not None %}{{ avg_pct }}%{% else %}–{% endif %}</div><div class="sub">{% if best_pct is not None %}Best {{ best_pct }}%{% else %}Waiting for marks{% endif %}</div></div><span class="go-circle"><svg class="ic sm"><use href="#i-chev"/></svg></span></a>
+ <a class="card stat-s" href="{% url 'dashboard' %}#learn"><span class="disc d-blue"><svg class="ic lg"><use href="#i-chart"/></svg></span><div class="grow"><div class="lbl">3D Scenes</div><div class="num">{{ scenes_viewed }}</div><div class="sub">Explore more</div></div><span class="go-circle"><svg class="ic sm"><use href="#i-chev"/></svg></span></a>
+</div>
+
+<div class="grid" style="grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start">
+ <section class="card">
+  <div class="panel-title" style="margin-bottom:18px"><span class="disc d-blue" style="width:34px;height:34px;box-shadow:none"><svg class="ic sm"><use href="#i-chart"/></svg></span><div><h2>Outcome Progress</h2><div class="sub">Your overall learning progress across all topics</div></div></div>
+  <div class="outcome">
+   <div class="donut" style="--p:{{ overall }}"><div><strong>{{ overall }}%</strong><span>Overall Progress</span></div></div>
+   <div class="rows">
+    <div class="oprog"><span class="sq p"><svg class="ic"><use href="#i-book"/></svg></span><div class="grow"><div class="t"><span>Lessons Completed</span><span>{{ done_lessons }} / {{ n_lessons }}</span></div><div class="line"><i class="p" style="width:{{ pct_lessons }}%"></i></div></div></div>
+    <div class="oprog"><span class="sq g"><svg class="ic"><use href="#i-check"/></svg></span><div class="grow"><div class="t"><span>Quizzes Passed</span><span>{{ passed }} / {{ n_attempts }}</span></div><div class="line"><i class="g" style="width:{{ pct_quizzes }}%"></i></div></div></div>
+    <div class="oprog"><span class="sq y"><svg class="ic"><use href="#i-trophy"/></svg></span><div class="grow"><div class="t"><span>Assignments Done</span><span>{{ n_graded }} / {{ work_total }}</span></div><div class="line"><i class="y" style="width:{{ pct_work }}%"></i></div></div></div>
+   </div>
+  </div>
+ </section>
+ <section class="card">
+  <div class="row" style="margin-bottom:6px"><div class="panel-title"><span class="disc d-orange" style="width:34px;height:34px;box-shadow:none"><svg class="ic sm"><use href="#i-rocket"/></svg></span><div><h2>Continue Learning</h2><div class="sub">Pick up where you left off</div></div></div><a class="pill-link" href="{% url 'work_list' %}">View All <svg class="ic sm"><use href="#i-arrow"/></svg></a></div>
+  {% for a in pending|slice:":3" %}<div class="cont"><span class="sq o{% cycle '1' '2' '3' %}"><svg class="ic"><use href="#i-{% if a.kind == 'quiz' %}quiz{% elif a.kind == 'diary' %}diary{% else %}file{% endif %}"/></svg></span>
+   <div class="grow"><b>{% if a.kind == 'quiz' and a.title|slice:':4' != 'Quiz' %}Quiz: {% endif %}{{ a.title }}</b><div class="sub">{% if a.lesson %}{{ a.lesson.title }}{% else %}{{ a.get_kind_display }}{% endif %}</div></div>
+   <a class="btn sm blue" href="{% if a.kind == 'quiz' %}{% url 'quiz' a.lesson_id %}{% else %}{{ a.get_absolute_url }}{% endif %}">{% if a.kind == 'quiz' %}Start Quiz{% elif a.kind == 'diary' %}Read{% else %}Open{% endif %} <svg class="ic sm"><use href="#i-arrow"/></svg></a></div>
+  {% empty %}<p class="muted" style="padding:20px 0">Nothing to continue right now — you are all caught up! 🎉</p>{% endfor %}
+ </section>
+</div>
+
+<section class="track"><svg width="110" height="120" viewBox="0 0 120 130" aria-hidden="true"><use href="#art-trophy"/></svg><div><h3>You’re on the right track!</h3><p>Keep learning and achieve more milestones.</p></div><a class="btn blue go" href="{% url 'dashboard' %}#learn" style="padding:13px 22px">Explore More Learning <svg class="ic sm"><use href="#i-arrow"/></svg></a></section>
+
+<div class="grid g2e" id="sessions" style="margin-top:18px;align-items:start">
+ <section class="card"><h2>Sessions</h2>{% for s in upcoming %}<div class="todo"><span class="ico v"><svg class="ic sm"><use href="#i-cal"/></svg></span><div class="grow"><b>{{ s.lesson.title }}</b><div class="sub">{{ s.school_class.name }} • {{ s.scheduled_for|date:"d M H:i" }} • {{ s.get_mode_display }}{% if s.room %} • {{ s.room }}{% endif %} • <span class="badge {% if s.status == 'live' %}published{% else %}review{% endif %}">{{ s.get_status_display }}</span></div>
+  {% if s.lesson.alternative_route %}<div class="sub">♿ No headset? {{ s.lesson.alternative_route|truncatechars:140 }}</div>{% endif %}</div><a class="btn sm blue" href="{{ s.lesson.get_absolute_url }}">Open</a></div>{% empty %}<p class="muted">No upcoming sessions.</p>{% endfor %}</section>
+ <section class="card"><h2>Follow-up tasks</h2>{% for t in tasks %}<div class="todo"><span class="ico g"><svg class="ic sm"><use href="#i-check"/></svg></span><div class="grow"><b>{{ t.get_kind_display }}{% if t.outcome %} • {{ t.outcome.code }}{% endif %}</b><div class="sub">{{ t.note }}</div></div>{% if t.lesson %}<a class="btn sm" href="{{ t.lesson.get_absolute_url }}">Lesson</a>{% endif %}</div>{% empty %}<p class="muted">Nothing pending.</p>{% endfor %}</section>
+</div>
+
+<section class="card" style="margin-top:18px"><h2>Outcomes</h2>
+{% for p in progress %}<div class="todo"><div class="grow"><b>{{ p.outcome.code }}</b> <span>{{ p.outcome.description|truncatechars:90 }}</span><div class="sub">{{ p.outcome.subject }}</div></div><span class="badge {% if p.status == 'achieved' %}published{% elif p.status == 'developing' %}review{% else %}draft{% endif %}">{{ p.get_status_display }}{% if p.reviewed %} · reviewed{% endif %}</span></div>
+{% empty %}<p class="muted">Progress appears once you start a lesson that is linked to an outcome.</p>{% endfor %}
+<p class="muted" style="margin-bottom:0">Finishing an activity is shown separately from mastery: only submitted work reviewed by your teacher decides “Achieved”.</p></section>
+{% endblock %}

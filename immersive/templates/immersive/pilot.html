@@ -1,0 +1,7 @@
+{% extends "immersive/base.html" %}{% block title %}Pilot scorecard{% endblock %}
+{% block content %}<div class="eyebrow">Roadmap s.12</div><h1>🎯 Pilot scorecard</h1>
+<p class="muted">Decision targets measured from real data. Agree the targets before the pilot starts; a small pilot cannot establish results for every age, subject or country.</p>
+<table class="t"><tr><th>Measure</th><th>Proposed target</th><th>Now</th><th></th></tr>{% for m in metrics %}<tr><td><b>{{ m.name }}</b></td><td>{{ m.target }}</td><td>{{ m.value }}</td><td>{% if m.ok is True %}<span class="ok">✔ met</span>{% elif m.ok is False %}<span class="no">✘ not met</span>{% else %}<span class="muted">measure</span>{% endif %}</td></tr>{% endfor %}</table>
+<div class="grid g2e" style="margin-top:16px"><div class="card"><h2>Sessions with a blocking failure</h2>{% for s in failures %}<div class="muted">{{ s.scheduled_for|date:"d M" }} · {{ s.school_class.name }} · {{ s.lesson.title }} – {{ s.failure_note }}</div>{% empty %}<p class="muted">None.</p>{% endfor %}</div>
+<div class="card"><h2>Open content issues</h2>{% for i in issues %}<div class="muted">[{{ i.severity }}] {{ i.lesson.title }}: {{ i.description }}</div>{% empty %}<p class="muted">None.</p>{% endfor %}</div></div>
+<p class="muted" style="margin-top:12px">Also measure outside the app: retention, practical performance, preparation time, support hours, cost per active learner and renewal interest.</p>{% endblock %}

@@ -1,0 +1,26 @@
+{% load static %}<!doctype html><html lang="{{ language }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3D · {{ lesson.title }}</title><link rel="stylesheet" href="{% static 'immersive/css/app.css' %}?v={{ asset_v }}">
+<script type="importmap">{"imports":{"three":"{% static 'immersive/vendor/three/three.module.js' %}","three/addons/":"{% static 'immersive/vendor/three/jsm/' %}","edupilot-voice":"{% static 'immersive/js/voice.js' %}?v={{ asset_v }}"}}</script></head>
+<body class="viewer">
+<div id="stage"></div><div id="tip"></div>
+<div class="hud" id="hud"><div class="small" id="counter"></div><h2 id="stitle">Loading…</h2><ul id="points"></ul><div class="narr" id="narr"></div><div class="dots" id="dots"></div>
+<button type="button" class="vhint" id="vhint">🔊 Click here to listen to this scene</button><div class="small" id="vmsg" role="status" aria-live="polite"></div>
+<details class="vset"><summary>🎚️ Voice settings</summary>
+<label>Voice</label><select id="vsel"></select>
+<label>Speed <span id="vratev"></span></label><input type="range" id="vrate" min="0.6" max="1.6" step="0.05" value="0.95">
+<label>Voice source</label><select id="vsrc"><option value="auto">Automatic (device voice, else server voice)</option><option value="browser">Device voice only</option><option value="server">Server voice (gTTS / espeak)</option></select>
+<div class="small" id="vengine"></div><button class="btn sm" id="vtest" type="button">▶ Test voice</button></details>
+<div id="pics" class="pics" aria-label="Pictures of this scene"></div><div class="small" id="picinfo"></div>
+<details class="vset"><summary>📋 Lesson plan</summary><div id="planbox" class="planbox"></div></details>
+<details class="vset"><summary>♿ Accessibility &amp; offline</summary>
+<label for="fs">Text size</label><input type="range" id="fs" min="0.9" max="1.6" step="0.1" value="1">
+<label class="check"><input type="checkbox" id="cap"> Show captions (narration text)</label>
+<label class="check"><input type="checkbox" id="hc"> High contrast</label>
+<label class="check"><input type="checkbox" id="calm"> Reduce motion (stops animations)</label>
+<button class="btn sm" id="offline" type="button">⬇ Save this lesson for offline use</button></details>
+<div class="small" style="margin-top:10px">⌨️ ← → scenes · P next picture · Space pause · Esc close picture ·  Drag = rotate · Scroll = zoom · Click objects to hear their names · Space = pause · 🥽 “Enter VR” works on WebXR headsets</div></div>
+<div class="topr"><a class="btn sm" href="{% url 'lesson_detail' lesson.pk %}">⬅ Lesson</a><a class="btn sm" href="{% url 'quiz' lesson.pk %}">📝 Quiz</a></div>
+<div class="bar"><button class="btn" id="prev">◀ Prev</button><button class="btn primary" id="tour">▶ Auto tour</button><button class="btn" id="speak">🔊 Voice</button><button class="btn" id="pause" disabled>⏸ Pause</button><button class="btn" id="repeat">🔁 Repeat</button><button class="btn" id="mic">🎤 Voice commands</button><button class="btn" id="next">Next ▶</button><button class="btn" id="spin">⟳ Auto-rotate</button></div>
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Picture"><button id="lbprev" class="btn" aria-label="Previous picture">◀</button><figure><img id="lbimg" alt=""><figcaption id="lbcap"></figcaption></figure><button id="lbnext" class="btn" aria-label="Next picture">▶</button><button id="lbclose" class="btn primary" aria-label="Close">✕ Close</button></div>
+<script>window.EDUPILOT={manifestUrl:"{% url 'api_manifest' lesson.pk %}{% if version %}?version={{ version|urlencode }}{% endif %}",packUrl:"{% url 'lesson_pack' lesson.pk %}",eventsUrl:"{% url 'api_events' %}",lessonId:{{ lesson.pk }},locale:"{{ language }}"};</script>
+<script type="module" src="{% static 'immersive/js/viewer.js' %}?v={{ asset_v }}"></script></body></html>

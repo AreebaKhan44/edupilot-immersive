@@ -1,0 +1,15 @@
+{% extends "immersive/base.html" %}{% block title %}Result{% endblock %}
+{% block content %}{% if preview %}
+<div class="eyebrow">Teacher preview (not saved)</div><h1>{{ attempt.score }} / {{ attempt.total }} ({{ attempt.percent }}%)</h1>
+{% elif attempt.is_graded %}
+<div class="eyebrow">Your marks</div><h1>{{ attempt.marks }} / {{ attempt.total }} ({{ attempt.final_percent }}%)</h1>
+{% if attempt.feedback %}<div class="msg info">Teacher's feedback: {{ attempt.feedback }}</div>{% endif %}
+{% if attempt.retry_allowed %}<div class="msg">Your teacher has allowed you to try this quiz again.</div><a class="btn mint" href="{% url 'quiz' lesson.pk %}">📝 Retry quiz</a>{% endif %}
+{% else %}
+<div class="eyebrow">Submitted</div><h1>✅ Quiz submitted</h1><div class="msg">Your answers reached your teacher on {{ attempt.created|date:"d M H:i" }}. The marks will appear here and on your dashboard after your teacher checks them.</div>
+{% endif %}
+<div class="stack" style="max-width:780px">{% if show_answers %}{% for r in review %}<div class="card"><b>{{ r.q.text }}</b>
+{% for o in r.q.options %}<div class="opt {% if forloop.counter0 == r.q.answer_index %}ok{% elif forloop.counter0 == r.choice %}bad{% endif %}">{{ o }}</div>{% endfor %}
+<p class="muted">{{ r.q.explanation }}</p></div>{% endfor %}{% endif %}
+{% if history and history.count > 1 %}<div class="card"><h3>All my attempts</h3><table><tr><th>When</th><th>Marks</th></tr>{% for h in history %}<tr><td>{{ h.created|date:"d M H:i" }}</td><td>{% if h.is_graded %}{{ h.marks }}/{{ h.total }} ({{ h.final_percent }}%){% else %}waiting for teacher{% endif %}</td></tr>{% endfor %}</table></div>{% endif %}
+<a class="btn primary" href="{% url 'viewer' lesson.pk %}">🌐 Review in 3D</a> <a class="btn" href="{{ lesson.get_absolute_url }}">Back to lesson</a> <a class="btn" href="{% url 'dashboard' %}">Dashboard</a></div>{% endblock %}

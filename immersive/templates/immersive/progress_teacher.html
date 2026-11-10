@@ -1,0 +1,34 @@
+{% extends "immersive/base.html" %}{% block title %}Students{% endblock %}
+{% block content %}
+<div class="pagehead">
+ <span class="tile t-violet"><svg class="ic lg"><use href="#i-users"/></svg></span>
+ <div class="grow"><h1>Students & analytics</h1><p class="muted">Track student progress, quiz performance and lesson activity.</p></div>
+ <form method="get" class="filters">
+  <div><label for="f-class">Class / section</label><select id="f-class" name="class" onchange="this.form.submit()"><option value="">All classes</option>{% for c in classes %}<option value="{{ c.pk }}" {% if sel_class == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+  <div><label for="f-days">Period</label><select id="f-days" name="days" onchange="this.form.submit()"><option value="0" {% if not sel_days %}selected{% endif %}>All time</option><option value="7" {% if sel_days == 7 %}selected{% endif %}>Last 7 days</option><option value="30" {% if sel_days == 30 %}selected{% endif %}>Last 30 days</option><option value="90" {% if sel_days == 90 %}selected{% endif %}>Last 90 days</option></select></div>
+ </form>
+</div>
+
+<div class="grid g5" style="margin-bottom:18px">
+ <div class="kpi k1"><span class="tile"><svg class="ic lg" style="color:var(--primary)"><use href="#i-users"/></svg></span><div><div class="lbl">Total students</div><div class="num">{{ kpi.students }}</div><div class="sub">{% if sel_days %}Active in selected period{% else %}With activity on your lessons{% endif %}</div></div></div>
+ <div class="kpi k2"><span class="tile"><svg class="ic lg" style="color:var(--mint)"><use href="#i-quiz"/></svg></span><div><div class="lbl">Quizzes submitted</div><div class="num">{{ kpi.attempts }}</div><div class="sub">Total submissions</div></div></div>
+ <div class="kpi k3"><span class="tile"><svg class="ic lg" style="color:var(--amber)"><use href="#i-chart"/></svg></span><div><div class="lbl">Average marks</div><div class="num">{% if kpi.avg is not None %}{{ kpi.avg }}%{% else %}–{% endif %}</div><div class="sub">Class average</div></div></div>
+ <div class="kpi k4"><span class="tile"><svg class="ic lg" style="color:var(--rose)"><use href="#i-trophy"/></svg></span><div><div class="lbl">Best score</div><div class="num">{% if kpi.best is not None %}{{ kpi.best }}%{% else %}–{% endif %}</div><div class="sub">Top performance</div></div></div>
+ <div class="kpi k5"><span class="tile"><svg class="ic lg" style="color:var(--violet)"><use href="#i-file"/></svg></span><div><div class="lbl">Assignments</div><div class="num">{{ kpi.submitted }}</div><div class="sub">Submitted</div></div></div>
+</div>
+
+<section class="card panel" style="margin-bottom:18px"><div class="panel-h"><span class="tile sm t-violet"><svg class="ic"><use href="#i-pen"/></svg></span><h2>Student performance</h2></div>
+ <div class="panel-b" style="overflow-x:auto"><table class="perf"><tr><th>#</th><th>Student</th><th>Class / section</th><th>Quizzes submitted</th><th>Average marks</th><th>Best score</th><th>Assignments</th><th>3D scenes</th><th>Last active</th><th></th></tr>
+ {% for r in rows %}<tr><td class="muted">{{ forloop.counter }}</td>
+  <td><a class="stu" href="{% url 'student_detail' r.student.pk %}"><span class="avatar sm" style="background:{% cycle 'linear-gradient(135deg,#7a5af8,#9b7bff)' 'linear-gradient(135deg,#3558f0,#5b8cff)' 'linear-gradient(135deg,#ef5a7a,#ff8aa3)' 'linear-gradient(135deg,#f59e2b,#ffbf5e)' 'linear-gradient(135deg,#12a58a,#36cfa9)' %}">{{ r.initial }}</span>{{ r.student.username }}</a></td>
+  <td>{{ r.classes }}</td><td>{{ r.attempts }}</td>
+  <td>{% if r.avg is not None %}<b>{{ r.avg }}%</b><span class="pmeter"><i class="{% if r.avg >= 80 %}hi{% elif r.avg >= 65 %}mid{% else %}lo{% endif %}" style="width:{{ r.avg }}%"></i></span>{% else %}–{% endif %}</td>
+  <td>{% if r.best is not None %}<b>{{ r.best }}%</b>{% else %}–{% endif %}</td><td>{{ r.submitted }}/{{ r.of }}</td><td>{{ r.views }}</td><td>{{ r.last|date:"d M H:i" }}</td>
+  <td style="white-space:nowrap"><a class="btn sm soft" href="{% url 'student_detail' r.student.pk %}">View</a></td></tr>
+ {% empty %}<tr><td colspan="10" class="muted">No student activity for this filter yet.</td></tr>{% endfor %}</table></div></section>
+
+<section class="card panel"><div class="panel-h"><span class="tile sm t-mint"><svg class="ic"><use href="#i-quiz"/></svg></span><h2>Recent quiz submissions</h2></div>
+ <div class="panel-b" style="overflow-x:auto"><table><tr><th>Student</th><th>Lesson</th><th>Marks</th><th>When</th></tr>
+ {% for a in attempts %}<tr><td>{{ a.user.username }}</td><td>{{ a.lesson.title }}</td><td>{% if a.is_graded %}{{ a.marks }}/{{ a.total }} ({{ a.final_percent }}%){% else %}<a class="btn sm primary" href="{% if a.assignment %}{{ a.assignment.get_absolute_url }}{% else %}{{ a.lesson.get_absolute_url }}{% endif %}">Give marks</a> <span class="muted">auto {{ a.score }}/{{ a.total }}</span>{% endif %}</td><td>{{ a.created|date:"d M H:i" }}</td></tr>
+ {% empty %}<tr><td colspan="4" class="muted">None yet.</td></tr>{% endfor %}</table></div></section>
+{% endblock %}
