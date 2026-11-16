@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
+import { installMaths, MATHS_TYPES } from 'edupilot-maths';   // real 3D maths scenes (shapes, counting, number line, opposites, colours, lines, symmetry, odd one out)
 import { Voice } from 'edupilot-voice';      // same file for teacher and student (url + ?v= comes from the importmap in viewer.html)
 
 const CFG = window.EDUPILOT;
@@ -272,6 +273,10 @@ const BUILD = {
   },
 };
 
+// maths scenes plug into the same BUILD table (one scene = one 3D lesson idea, standing on a platform, tap to interact)
+Object.assign(BUILD, installMaths({ THREE, stage, anim, pickables, label, std, camera, controls, isCalm: () => calm }));
+const MATHS = new Set(MATHS_TYPES);
+
 // ---------- floating in-world info panel (visible inside VR headsets too) ----------
 let panel = null;
 function makePanel(title, points, right) {
@@ -350,8 +355,9 @@ function show(i) {
   controls.target.set(0, 1.4, 0);
   if (s.model) loadModel(s.model, s.visual || {}, s); else (BUILD[s.visual?.type] || BUILD.cluster)(s.visual || {}, s);
   const isDiagram = !s.model && (BUILD[s.visual?.type] ? s.visual.type === 'cluster' : true) && !!(s.visual?.diagram?.nodes?.length >= 2 || (s.key_points || []).length >= 2);
-  stage.position.x = (isDiagram || s.visual?.type === 'bits') && innerWidth > 900 ? 1.3 : 0;        // keep the diagram clear of the left panel
-  makeBoard(s.images || [], (isDiagram || s.visual?.type === 'bits') && (s.images || []).every((i) => i.kind === 'generated'));
+  const own3d = MATHS.has(s.visual?.type);     // maths scenes bring their own platform + labels
+  stage.position.x = (isDiagram || own3d || s.visual?.type === 'bits') && innerWidth > 900 ? 1.3 : 0;        // keep the diagram clear of the left panel
+  makeBoard(s.images || [], (isDiagram || own3d || s.visual?.type === 'bits') && (s.images || []).every((i) => i.kind === 'generated'));
   makePanel(s.title, s.key_points || [], boardImgs.length > 0);
   $('picinfo').textContent = boardImgs.length ? '' : 'No picture for this scene.';
   $('counter').textContent = `${M.title} · Scene ${idx + 1}/${M.scenes.length}`;

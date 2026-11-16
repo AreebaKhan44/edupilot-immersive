@@ -15,6 +15,9 @@ API_URL = "https://api.anthropic.com/v1/messages"
 
 PROMPT = """You are an instructional designer. Turn the BOOK TEXT into an immersive 3D lesson plan.
 Use ONLY facts found in the BOOK TEXT. Write narration in the same language as the text.
+For maths books for young children choose the visual type that matches the idea of the scene: shapes3d (2-D/3-D shapes, flat and curved surfaces),
+counting (numbers 1-10), numline (before / after, sequences), opposites (big-small, hot-cold, up-down ...), colours (primary colours, mixing, rainbow),
+lines (straight, curved, vertical, horizontal, slanting), symmetry (halves, matching halves), oddone (find the odd one out).
 Return ONLY valid JSON (no markdown) with this shape:
 {{"objective": str,
  "scenes": [{{"title": str, "narration": str (60-120 words, spoken style), "key_points": [str, str, str],

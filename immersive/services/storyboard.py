@@ -12,6 +12,16 @@ from . import diagrams, llm
 from .textproc import is_instruction, keywords, rank_sentences, short_title, split_sentences, trim
 
 VISUAL_RULES = {
+    # ---- maths for young learners (pre-primary / primary teaching guides): real 3-D scenes you can touch
+    "shapes3d": r"\b[23]-?d\b|\bshapes?\b|\bsolids?\b|\bcones?\b|\bcylinders?\b|\bcuboids?\b|\bspheres?\b|\bcubes?\b|pyramids?|flat surface|curved surface|\bovoids?\b|\bdice\b",
+    "counting": r"\bcount(?:ing)?\b|numerals?|number names?|abacus|\btally\b|how many|\b1 to (?:9|10)\b|\bnumbers? 1\b|ginti|گنتی",
+    "numline": r"sequenc|before and after|\bascending\b|\bdescending\b|number line|comes before|comes after|number comes|\bbefore\b.{0,40}\bafter\b",
+    "opposites": r"opposites?|hot and cold|tall and short|fat and thin|up and down|in and out|open and closed|day and night|happy and sad|big and small|big elephant",
+    "colours": r"\bcolou?rs?\b|rainbow|vibgyor|primary colou?rs?|shades? of|\brang\b|رنگ",
+    "lines": r"straight lines?|curved lines?|slanting|horizontal|vertical|pencil grip|writing patterns?|\btracing\b|sand ?pit",
+    "symmetry": r"symmetr|identical halves?|\bhalves\b|identical pair|mirror image|squish paint",
+    "oddone": r"odd one|odd item|odd out|\bodd\b.{0,12}\bgroup\b",
+    # ---- subjects with a ready-made 3-D model
     "bits": r"\bbits?\b|\bbytes?\b|binary|kilobyte|megabyte|gigabyte|\bkb\b|\bmb\b|\bgb\b|ones and zeros|0s and 1s|ascii|بٹ|بائٹ|بائنری",
     "solar": r"solar system|planet|orbit|\bsun\b|mercury|venus|\bmars\b|jupiter|saturn|neptune|uranus|galaxy|نظام شمسی|سیار|سورج|suraj|sooraj|sayyar",
     "cell": r"\bcells?\b|nucleus|mitochondri|organelle|membrane|cytoplasm|ribosom|خلیہ|khaliya",
@@ -20,7 +30,9 @@ VISUAL_RULES = {
     "dna": r"\bdna\b|\bgenes?\b|chromosome|heredit|genetic|helix|جین",
     "geometry": r"triangle|angle|geometry|polygon|circle|\barea\b|volume|cube|pyramid|cylinder|مثلث|zawiya",
 }
-PALETTE = {"bits": "#20b7c4", "solar": "#f0aa49", "cell": "#11a88b", "atom": "#7a5bf1", "circuit": "#315bde",
+PALETTE = {"shapes3d": "#20b7c4", "counting": "#4da3ff", "numline": "#2b6cb0", "opposites": "#f0aa49", "colours": "#e5484d",
+           "lines": "#d9b779", "symmetry": "#ff6b6b", "oddone": "#7a5bf1",
+           "bits": "#20b7c4", "solar": "#f0aa49", "cell": "#11a88b", "atom": "#7a5bf1", "circuit": "#315bde",
            "dna": "#d9467a", "geometry": "#20b7c4", "cluster": "#5579ff"}
 VISUAL_KEYS = list(PALETTE)
 

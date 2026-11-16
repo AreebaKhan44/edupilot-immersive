@@ -1,6 +1,6 @@
 {% load static %}<!doctype html><html lang="{{ language }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>3D · {{ lesson.title }}</title><link rel="stylesheet" href="{% static 'immersive/css/app.css' %}?v={{ asset_v }}">
-<script type="importmap">{"imports":{"three":"{% static 'immersive/vendor/three/three.module.js' %}","three/addons/":"{% static 'immersive/vendor/three/jsm/' %}","edupilot-voice":"{% static 'immersive/js/voice.js' %}?v={{ asset_v }}"}}</script></head>
+<script type="importmap">{"imports":{"three":"{% static 'immersive/vendor/three/three.module.js' %}","three/addons/":"{% static 'immersive/vendor/three/jsm/' %}","edupilot-voice":"{% static 'immersive/js/voice.js' %}?v={{ asset_v }}","edupilot-maths":"{% static 'immersive/js/maths3d.js' %}?v={{ asset_v }}"}}</script></head>
 <body class="viewer">
 <div id="stage"></div><div id="tip"></div>
 <div class="hud" id="hud"><div class="small" id="counter"></div><h2 id="stitle">Loading…</h2><ul id="points"></ul><div class="narr" id="narr"></div><div class="dots" id="dots"></div>

@@ -356,7 +356,7 @@ def lesson_pack(request, pk):
     lesson = get_lesson_for_view(request, pk)
     if not lesson.offline_capable:
         return JsonResponse({"error": "This lesson is not marked offline-capable."}, status=403)
-    urls = {reverse_static("immersive/js/viewer.js"), reverse_static("immersive/js/voice.js"), reverse_static("immersive/css/app.css"),
+    urls = {reverse_static("immersive/js/viewer.js"), reverse_static("immersive/js/voice.js"), reverse_static("immersive/js/maths3d.js"), reverse_static("immersive/css/app.css"),
             reverse_static("immersive/vendor/three/three.module.js"), reverse_static("immersive/vendor/three/jsm/controls/OrbitControls.js"),
             reverse_static("immersive/vendor/three/jsm/webxr/VRButton.js"), reverse_static("immersive/vendor/three/jsm/loaders/GLTFLoader.js"),
             reverse_static("immersive/vendor/three/jsm/utils/BufferGeometryUtils.js"),

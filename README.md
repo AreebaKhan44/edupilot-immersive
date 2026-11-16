@@ -43,6 +43,20 @@ Run `python manage.py migrate` (migration 0006). Not built (needs a decision/cus
 - **Voice**: `voice.js` dobara likha – utterance GC bug, cancel→speak race, silent engine watchdog, device voice ↔ server voice automatic fallback, status message (`🔊 Playing (device voice)` / reason). Pehli awaaz ke liye page par **"Click here to start the voice narration"** button ya koi bhi click/key.
 - Server voice: gTTS (internet) → espeak-ng → **Windows built-in voice (SAPI, offline, English)** – Windows par kuch install karne ki zaroorat nahi.
 
+## Update (maths books: real 3D scenes instead of flat cards)
+Maths topics (e.g. *Maths Wise Introductory Book 1*) ab generic card-grid mein nahi, apne **asli 3D scene** mein khulte hain (`static/immersive/js/maths3d.js`). Har scene ek platform par khada hota hai (koi khali jagah / floating cards nahi), parchhaiyan hain, aur student **chhoo kar** seekhta hai:
+| Visual type | Topic | Student kya karta hai |
+|---|---|---|
+| `shapes3d` | 2-D vs 3-D, flat/curved surface | Cube, cuboid, sphere, cone, cylinder, pyramid par tap -> spin + asli cheez (dice, book, ball, party hat, tin, tent) + flat 2-D shapes zameen par |
+| `counting` | Numbers 1-10 | Kisi tower par tap -> cubes 1,2,3... ginte hain, word (five) + before/after; pehle 5 aur agle 5 alag rang |
+| `numline` | Before / After, sequencing | Stepping stones 1-10 par frog hop karta hai; "4 comes BEFORE 5, 6 comes AFTER 5" |
+| `opposites` | Big/small, tall/short, fat/thin, up/down, in/out, hot/cold, open/closed, day/night, happy/sad | Jodi ke objects par tap -> agli jodi; scene ke text se sahi jodi khud chunti hai |
+| `colours` | Primary colours, mixing, rainbow | Do paint pots par tap -> bowl mein rang mix (Red+Yellow = Orange...), peeche VIBGYOR rainbow |
+| `lines` | Vertical / horizontal / slanting, straight vs curved | Sand tray mein sticks; string par tap -> hands paas aaye to straight line curved ho jati hai |
+| `symmetry` | Halves, matching halves | Butterfly fold hoti hai (dono half barabar), apple do equal halves mein khulta hai |
+| `oddone` | Odd one out | 4 cheezon mein se alag wali par tap; sahi = jump, galat = "Try again" |
+Scene ka type `services/storyboard.py` (`VISUAL_RULES`) text se khud chunta hai; AI (Claude) path ko bhi yehi types diye gaye hain. Reduce-motion ON ho to koi auto-demo nahi chalta. Naye tests: `immersive/tests_maths.py`.
+
 ## Quick start
 ```bash
 python -m venv venv && source venv/bin/activate        # Windows: venv\Scripts\activate
